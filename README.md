@@ -1,2 +1,2 @@
-# MeViDaKaSha.github.io luffy is king
+# MeViDaKaSha.github.io
 
