@@ -1,196 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="fake-ah-website.css">
   <title>Flame Data</title>
-  <ul>
-    <li><a href="index.html">Home</a></li>
-    <li><a href="questions.html">Questions</a></li>
-  </ul>
-
-  <h1>Flame Data</h1>
-  <title>Dataset Scatter Plots & Interactive Dashboard</title>
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Google Fonts Inter -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #1c1917;
+      color: #e7e5e4;
+    }
+    .card {
+      background: #292524;
+      border: 1px solid #44403c;
+      border-radius: 8px;
+    }
+    select {
+      background: #3f3f46;
+      border: 1px solid #57534e;
+      color: #fafaf9;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 14px;
+    }
+    select:focus {
+      outline: 2px solid #a8a29e;
     }
   </style>
-  </head>
-
-  <body class="bg-slate-900 text-slate-100 min-h-screen pb-12">
-
-    <!-- Header -->
-    <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-wrap items-center justify-between gap-4">
-        <div class="flex items-center space-x-3">
-          <div class="p-2 bg-indigo-600 rounded-lg">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
-              </path>
-            </svg>
-          </div>
-          <div>
-            <h1 class="text-xl font-bold text-white leading-tight">Observation Dataset Dashboard</h1>
-            <p class="text-xs text-slate-400">Interactive Scatter Analysis & Data Visualizations</p>
-          </div>
-        </div>
-
-        <!-- Global Filter Controls -->
-        <div class="flex items-center gap-3">
-          <label for="labelFilter" class="text-sm font-medium text-slate-300">Filter Category:</label>
-          <select id="labelFilter" class="bg-slate-700 border border-slate-600 text-white text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 p-2.5 outline-none cursor-pointer">
-          <option value="all">All Labels (Dim & Bright)</option>
-          <option value="dim">Dim Only (#00ffff)</option>
-          <option value="bright">Bright Only (#ff0000)</option>
-        </select>
+</head>
+<body class="min-h-screen pb-16">
+  <div class="max-w-6xl mx-auto px-4 pt-6">
+    <div class="flex gap-6 text-sm mb-8 border-b border-stone-700 pb-3">
+      <a href="index.html" class="text-stone-300 hover:text-white">Home</a>
+      <a href="questions.html" class="text-stone-300 hover:text-white">Questions</a>
+    </div>
+    <h1 class="text-2xl font-semibold mb-6 text-stone-100">Flame Data</h1>
+    <div class="flex items-center gap-3 mb-8">
+      <label for="labelFilter" class="text-sm text-stone-400">Filter:</label>
+      <select id="labelFilter">
+        <option value="all">All (dim + bright)</option>
+        <option value="dim">Dim only</option>
+        <option value="bright">Bright only</option>
+      </select>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
+      <div class="card p-4">
+        <div class="text-sm text-stone-400 mb-2">Diameter (mm) × Brightness</div>
+        <div class="h-60 relative">
+          <canvas id="chart1"></canvas>
         </div>
       </div>
-    </header>
-
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 space-y-8">
-
-      <!-- Section 1: Pre-configured Scatter Plot Grid -->
-      <section>
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-semibold text-slate-200">Standard Comparisons</h2>
-          <span class="text-xs bg-slate-800 border border-slate-700 text-slate-400 px-3 py-1 rounded-full">4 Visualizations</span>
+      <div class="card p-4">
+        <div class="text-sm text-stone-400 mb-2">Oxygen (%) × Brightness</div>
+        <div class="h-60 relative">
+          <canvas id="chart2"></canvas>
         </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Plot 1 -->
-          <div
-            class="bg-slate-800 border border-slate-700/80 rounded-xl p-4 shadow-lg hover:border-slate-600 transition">
-            <h3 class="text-sm font-medium text-slate-300 mb-2 flex items-center justify-between">
-              <span>Diameter vs Brightness</span>
-              <span class="text-xs text-indigo-400 font-normal">Diameter (mm) × Brightness (au)</span>
-            </h3>
-            <div class="relative h-64 w-full">
-              <canvas id="chart1"></canvas>
-            </div>
-          </div>
-
-          <!-- Plot 2 -->
-          <div
-            class="bg-slate-800 border border-slate-700/80 rounded-xl p-4 shadow-lg hover:border-slate-600 transition">
-            <h3 class="text-sm font-medium text-slate-300 mb-2 flex items-center justify-between">
-              <span>Oxygen vs Brightness</span>
-              <span class="text-xs text-indigo-400 font-normal">Oxygen (%) × Brightness (au)</span>
-            </h3>
-            <div class="relative h-64 w-full">
-              <canvas id="chart2"></canvas>
-            </div>
-          </div>
-
-          <!-- Plot 3 -->
-          <div
-            class="bg-slate-800 border border-slate-700/80 rounded-xl p-4 shadow-lg hover:border-slate-600 transition">
-            <h3 class="text-sm font-medium text-slate-300 mb-2 flex items-center justify-between">
-              <span>Airflow vs Diameter</span>
-              <span class="text-xs text-indigo-400 font-normal">Airflow (cm/s) × Diameter (mm)</span>
-            </h3>
-            <div class="relative h-64 w-full">
-              <canvas id="chart3"></canvas>
-            </div>
-          </div>
-
-          <!-- Plot 4 -->
-          <div
-            class="bg-slate-800 border border-slate-700/80 rounded-xl p-4 shadow-lg hover:border-slate-600 transition">
-            <h3 class="text-sm font-medium text-slate-300 mb-2 flex items-center justify-between">
-              <span>Oxygen vs Airflow</span>
-              <span class="text-xs text-indigo-400 font-normal">Oxygen (%) × Airflow (cm/s)</span>
-            </h3>
-            <div class="relative h-64 w-full">
-              <canvas id="chart4"></canvas>
-            </div>
-          </div>
+      </div>
+      <div class="card p-4">
+        <div class="text-sm text-stone-400 mb-2">Airflow (cm/s) × Diameter</div>
+        <div class="h-60 relative">
+          <canvas id="chart3"></canvas>
         </div>
-      </section>
-
-      <!-- Section 2: Custom Axis Interactive Explorer -->
-      <section class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-          <div>
-            <h2 class="text-lg font-semibold text-slate-100">Custom Axis Scatter Plot Explorer</h2>
-            <p class="text-xs text-slate-400">Select any two variables to compare dynamically across the dataset.</p>
-          </div>
-
-          <div class="flex flex-wrap items-center gap-4">
-            <!-- X Axis Selector -->
-            <div class="flex items-center gap-2">
-              <label for="xAxisSelect" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">X Axis:</label>
-              <select id="xAxisSelect" class="bg-slate-700 border border-slate-600 text-white text-xs rounded-md p-2 outline-none focus:ring-2 focus:ring-indigo-500">
+      </div>
+      <div class="card p-4">
+        <div class="text-sm text-stone-400 mb-2">Oxygen (%) × Airflow</div>
+        <div class="h-60 relative">
+          <canvas id="chart4"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="card p-5 mb-10">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+        <div>
+          <h2 class="text-lg font-medium text-stone-100">Custom Scatter</h2>
+          <p class="text-sm text-stone-500">Pick any two variables</p>
+        </div>
+        <div class="flex flex-wrap gap-4">
+          <div class="flex items-center gap-2">
+            <label class="text-xs text-stone-400">X:</label>
+            <select id="xAxisSelect">
               <option value="oxygen_pct">Oxygen (%)</option>
               <option value="airflow_cm_s">Airflow (cm/s)</option>
               <option value="diameter_mm" selected>Diameter (mm)</option>
-              <option value="brightness_au">Brightness (au)</option>
+              <option value="brightness_au">Brightness</option>
             </select>
-            </div>
-
-            <!-- Y Axis Selector -->
-            <div class="flex items-center gap-2">
-              <label for="yAxisSelect" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Y Axis:</label>
-              <select id="yAxisSelect" class="bg-slate-700 border border-slate-600 text-white text-xs rounded-md p-2 outline-none focus:ring-2 focus:ring-indigo-500">
+          </div>
+          <div class="flex items-center gap-2">
+            <label class="text-xs text-stone-400">Y:</label>
+            <select id="yAxisSelect">
               <option value="oxygen_pct">Oxygen (%)</option>
               <option value="airflow_cm_s">Airflow (cm/s)</option>
               <option value="diameter_mm">Diameter (mm)</option>
-              <option value="brightness_au" selected>Brightness (au)</option>
+              <option value="brightness_au" selected>Brightness</option>
             </select>
-            </div>
           </div>
         </div>
-
-        <div class="relative h-80 w-full">
-          <canvas id="customChart"></canvas>
-        </div>
-      </section>
-
-      <!-- Section 3: Data Table -->
-      <section class="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden shadow-xl">
-        <div class="p-4 sm:p-6 border-b border-slate-700 flex justify-between items-center flex-wrap gap-4">
-          <div>
-            <h2 class="text-lg font-semibold text-slate-100">Dataset View</h2>
-            <p class="text-xs text-slate-400">Values matched directly with observation parameters.</p>
-          </div>
-          <div class="text-xs text-slate-400">
-            Showing <span id="recordCount" class="font-bold text-white">20</span> records
-          </div>
-        </div>
-
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-sm text-slate-300">
-            <thead
-              class="bg-slate-900/60 text-xs font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-700">
-              <tr>
-                <th class="py-3.5 px-6">Observation</th>
-                <th class="py-3.5 px-6">Oxygen (%)</th>
-                <th class="py-3.5 px-6">Airflow (cm/s)</th>
-                <th class="py-3.5 px-6">Diameter (mm)</th>
-                <th class="py-3.5 px-6">Brightness (au)</th>
-                <th class="py-3.5 px-6">Practice Label</th>
-              </tr>
-            </thead>
-            <tbody id="dataTableBody" class="divide-y divide-slate-700/60 font-mono text-xs">
-              <!-- Table rows populated via JS -->
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-    </main>
-
-    <script>
-      // Complete Raw Dataset
+      </div>
+      <div class="h-72 relative">
+        <canvas id="customChart"></canvas>
+      </div>
+    </div>
+    <div class="card overflow-hidden">
+      <div class="px-5 py-3 border-b border-stone-700 flex justify-between items-center">
+        <span class="text-sm text-stone-400">Data</span>
+        <span class="text-sm text-stone-500">
+          <span id="recordCount" class="text-stone-200 font-medium">20</span> records
+        </span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-stone-900 text-stone-400 text-xs uppercase">
+            <tr>
+              <th class="py-3 px-5 text-left">Obs</th>
+              <th class="py-3 px-5 text-left">Oxygen %</th>
+              <th class="py-3 px-5 text-left">Airflow</th>
+              <th class="py-3 px-5 text-left">Diameter</th>
+              <th class="py-3 px-5 text-left">Brightness</th>
+              <th class="py-3 px-5 text-left">Label</th>
+            </tr>
+          </thead>
+          <tbody id="dataTableBody" class="divide-y divide-stone-700/80">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <script>
     const dataset = [
       { observation: 'A', oxygen_pct: 16, airflow_cm_s: 2, diameter_mm: 12, brightness_au: 30, practice_label: 'dim' },
       { observation: 'B', oxygen_pct: 18, airflow_cm_s: 3, diameter_mm: 15, brightness_au: 38, practice_label: 'dim' },
@@ -213,179 +150,165 @@
       { observation: 'S', oxygen_pct: 18, airflow_cm_s: 5, diameter_mm: 20, brightness_au: 58, practice_label: 'dim' },
       { observation: 'T', oxygen_pct: 21, airflow_cm_s: 4, diameter_mm: 23, brightness_au: 62, practice_label: 'bright' }
     ];
-
     const labelMap = {
       oxygen_pct: 'Oxygen (%)',
       airflow_cm_s: 'Airflow (cm/s)',
       diameter_mm: 'Diameter (mm)',
       brightness_au: 'Brightness (au)'
     };
-
-    // Color Scheme matching image/request specs
-    const dimColor = '#00ffff';    // Cyan / Bright Blue
-    const brightColor = '#ff0000'; // Bright Red
-
+    const ranges = {
+      oxygen_pct:    { min: 15, max: 25 },
+      airflow_cm_s:  { min: 1,  max: 9 },
+      diameter_mm:   { min: 10, max: 33 },
+      brightness_au: { min: 25, max: 90 }
+    };
+    const dimColor = '#5eead4';
+    const brightColor = '#f97316';
     let charts = [];
     let customChartInstance = null;
-
-    // Map dataset into Chart.js scatter dataset format
-    function mapScatterData(xKey, yKey, filterLabel) {
-      let filtered = dataset;
-      if (filterLabel !== 'all') {
-        filtered = dataset.filter(d => d.practice_label === filterLabel);
-      }
-
-      const dimPoints = filtered
-        .filter(d => d.practice_label === 'dim')
+    function getPoints(xKey, yKey, label) {
+      return dataset
+        .filter(d => d.practice_label === label)
         .map(d => ({ x: d[xKey], y: d[yKey], obs: d.observation }));
-
-      const brightPoints = filtered
-        .filter(d => d.practice_label === 'bright')
-        .map(d => ({ x: d[xKey], y: d[yKey], obs: d.observation }));
-
-      const datasets = [];
-
-      if (filterLabel === 'all' || filterLabel === 'dim') {
-        datasets.push({
-          label: 'dim',
-          data: dimPoints,
-          backgroundColor: dimColor,
-          borderColor: '#00cccc',
-          borderWidth: 1,
-          pointRadius: 6,
-          pointHoverRadius: 8
-        });
-      }
-
-      if (filterLabel === 'all' || filterLabel === 'bright') {
-        datasets.push({
-          label: 'bright',
-          data: brightPoints,
-          backgroundColor: brightColor,
-          borderColor: '#cc0000',
-          borderWidth: 1,
-          pointRadius: 6,
-          pointHoverRadius: 8
-        });
-      }
-
-      return datasets;
     }
-
-    // Chart Configuration helper
-    function createScatterConfig(xKey, yKey, filterLabel) {
+    function createScatterConfig(xKey, yKey) {
       return {
         type: 'scatter',
         data: {
-          datasets: mapScatterData(xKey, yKey, filterLabel)
+          datasets: [
+            {
+              label: 'dim',
+              data: getPoints(xKey, yKey, 'dim'),
+              backgroundColor: dimColor,
+              borderColor: '#2dd4bf',
+              borderWidth: 1,
+              pointRadius: 5,
+              pointHoverRadius: 7
+            },
+            {
+              label: 'bright',
+              data: getPoints(xKey, yKey, 'bright'),
+              backgroundColor: brightColor,
+              borderColor: '#ea580c',
+              borderWidth: 1,
+              pointRadius: 5,
+              pointHoverRadius: 7
+            }
+          ]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          animation: false,
           plugins: {
             legend: {
               labels: {
-                color: '#94a3b8',
-                font: { family: 'Inter', size: 12 }
+                color: '#a8a29e',
+                font: { size: 12 }
               }
             },
             tooltip: {
               callbacks: {
                 label: function(context) {
                   const obs = context.raw.obs || '';
-                  return ` Obs ${obs}: (${context.parsed.x}, ${context.parsed.y})`;
+                  return ` ${obs}: (${context.parsed.x}, ${context.parsed.y})`;
                 }
               }
             }
           },
           scales: {
             x: {
+              min: ranges[xKey].min,
+              max: ranges[xKey].max,
               title: {
                 display: true,
                 text: labelMap[xKey],
-                color: '#94a3b8',
-                font: { family: 'Inter', size: 12, weight: 'bold' }
+                color: '#a8a29e',
+                font: { size: 12 }
               },
-              grid: { color: 'rgba(51, 65, 85, 0.4)' },
-              ticks: { color: '#94a3b8' }
+              grid: { color: 'rgba(68, 64, 60, 0.5)' },
+              ticks: { color: '#a8a29e' }
             },
             y: {
+              min: ranges[yKey].min,
+              max: ranges[yKey].max,
               title: {
                 display: true,
                 text: labelMap[yKey],
-                color: '#94a3b8',
-                font: { family: 'Inter', size: 12, weight: 'bold' }
+                color: '#a8a29e',
+                font: { size: 12 }
               },
-              grid: { color: 'rgba(51, 65, 85, 0.4)' },
-              ticks: { color: '#94a3b8' }
+              grid: { color: 'rgba(68, 64, 60, 0.5)' },
+              ticks: { color: '#a8a29e' }
             }
           }
         }
       };
     }
-
-    // Render 4 main charts
-    function renderMainCharts(filterLabel = 'all') {
+    function applyFilter(chart, filterLabel) {
+      if (!chart) return;
+      const dimData = chart.data.datasets[0];
+      const brightData = chart.data.datasets[1];
+      if (filterLabel === 'all') {
+        dimData.hidden = false;
+        brightData.hidden = false;
+      } else if (filterLabel === 'dim') {
+        dimData.hidden = false;
+        brightData.hidden = true;
+      } else {
+        dimData.hidden = true;
+        brightData.hidden = false;
+      }
+      chart.update('none');
+    }
+    function renderMainCharts() {
       const configs = [
         { id: 'chart1', x: 'diameter_mm', y: 'brightness_au' },
         { id: 'chart2', x: 'oxygen_pct', y: 'brightness_au' },
         { id: 'chart3', x: 'airflow_cm_s', y: 'diameter_mm' },
         { id: 'chart4', x: 'oxygen_pct', y: 'airflow_cm_s' }
       ];
-
-      // Destroy existing chart instances if re-rendering
       charts.forEach(c => c.destroy());
       charts = [];
-
       configs.forEach(cfg => {
         const ctx = document.getElementById(cfg.id).getContext('2d');
-        const chart = new Chart(ctx, createScatterConfig(cfg.x, cfg.y, filterLabel));
+        const chart = new Chart(ctx, createScatterConfig(cfg.x, cfg.y));
         charts.push(chart);
       });
     }
-
-    // Render/Update custom explorer chart
     function renderCustomChart() {
       const xKey = document.getElementById('xAxisSelect').value;
       const yKey = document.getElementById('yAxisSelect').value;
-      const filterLabel = document.getElementById('labelFilter').value;
-
       if (customChartInstance) {
         customChartInstance.destroy();
       }
-
       const ctx = document.getElementById('customChart').getContext('2d');
-      customChartInstance = new Chart(ctx, createScatterConfig(xKey, yKey, filterLabel));
+      customChartInstance = new Chart(ctx, createScatterConfig(xKey, yKey));
+      const filter = document.getElementById('labelFilter').value;
+      applyFilter(customChartInstance, filter);
     }
-
-    // Render Data Table
     function renderTable(filterLabel = 'all') {
       const tbody = document.getElementById('dataTableBody');
       tbody.innerHTML = '';
-
-      const filtered = filterLabel === 'all' 
-        ? dataset 
+      const filtered = filterLabel === 'all'
+        ? dataset
         : dataset.filter(d => d.practice_label === filterLabel);
-
       document.getElementById('recordCount').textContent = filtered.length;
-
       filtered.forEach(row => {
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-700/50 transition';
-
+        tr.className = 'hover:bg-stone-800/60';
         const isDim = row.practice_label === 'dim';
-        const badgeStyle = isDim 
-          ? 'bg-cyan-950 text-cyan-300 border border-cyan-800' 
-          : 'bg-red-950 text-red-300 border border-red-800';
-
+        const badgeClass = isDim
+          ? 'bg-teal-950 text-teal-300 border border-teal-800'
+          : 'bg-orange-950 text-orange-300 border border-orange-800';
         tr.innerHTML = `
-          <td class="py-3 px-6 font-bold text-white">${row.observation}</td>
-          <td class="py-3 px-6">${row.oxygen_pct}</td>
-          <td class="py-3 px-6">${row.airflow_cm_s}</td>
-          <td class="py-3 px-6">${row.diameter_mm}</td>
-          <td class="py-3 px-6">${row.brightness_au}</td>
-          <td class="py-3 px-6">
-            <span class="inline-block text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${badgeStyle}">
+          <td class="py-2.5 px-5 font-medium text-stone-100">${row.observation}</td>
+          <td class="py-2.5 px-5">${row.oxygen_pct}</td>
+          <td class="py-2.5 px-5">${row.airflow_cm_s}</td>
+          <td class="py-2.5 px-5">${row.diameter_mm}</td>
+          <td class="py-2.5 px-5">${row.brightness_au}</td>
+          <td class="py-2.5 px-5">
+            <span class="inline-block text-xs px-2 py-0.5 rounded ${badgeClass}">
               ${row.practice_label}
             </span>
           </td>
@@ -393,24 +316,20 @@
         tbody.appendChild(tr);
       });
     }
-
-    // Event Listeners
     document.getElementById('labelFilter').addEventListener('change', (e) => {
       const filter = e.target.value;
-      renderMainCharts(filter);
-      renderCustomChart();
+      charts.forEach(c => applyFilter(c, filter));
+      applyFilter(customChartInstance, filter);
       renderTable(filter);
     });
-
     document.getElementById('xAxisSelect').addEventListener('change', renderCustomChart);
     document.getElementById('yAxisSelect').addEventListener('change', renderCustomChart);
-
-    // Initial Load
     window.onload = function() {
       renderMainCharts();
       renderCustomChart();
       renderTable();
     };
-    </script>
-  </body>
+  </script>
+</body>
 </html>
+```
