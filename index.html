@@ -1,20 +1,1245 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <link rel="stylesheet" href="fake-ah-website.css">
-    <title>Microgravity Fire Prototype - Home</title>
-    <ul>
-        <li><a href="index.html">Home</a></li>
-        <li><a href="questions.html">Questions</a></li>
-        <li><a href="data.html">Data</a></li>
-    </ul>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fire Detective | NASA Flame Science</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+:root {
+  --bg:#07111f;
+  --panel:#101f32;
+  --panel2:#152840;
+  --border:#263d56;
+  --text:#edf5ff;
+  --muted:#9bb0c8;
+  --cyan:#35d5ed;
+  --orange:#ff9d52;
+  --red:#ff6578;
+  --green:#62d6a0;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;line-height:1.6
+}
+header{
+  padding:15px 6%;display:flex;align-items:center;
+  justify-content:space-between;gap:20px;flex-wrap:wrap;
+  position:sticky;top:0;z-index:1000;
+  background:rgba(7,17,31,.96);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border)
+}
+.logo{font-size:21px;font-weight:800;letter-spacing:.5px}
+.logo span{color:var(--cyan)}
+nav{display:flex;gap:20px;flex-wrap:wrap}
+nav a{color:var(--muted);text-decoration:none;font-size:14px}
+nav a:hover{color:var(--cyan)}
+main{width:min(1200px,90%);margin:auto}
+.hero{
+  padding:85px 0 65px;display:grid;
+  grid-template-columns:1.3fr .7fr;gap:35px;align-items:center
+}
+.eyebrow{
+  color:var(--cyan);text-transform:uppercase;
+  letter-spacing:2px;font-size:12px;font-weight:bold
+}
+h1{font-size:clamp(40px,6vw,68px);line-height:1.05;margin:14px 0 20px}
+h1 span{color:var(--cyan)}
+.hero p{color:var(--muted);max-width:650px;font-size:17px}
+.hero-visual{
+  min-height:270px;border:1px solid var(--border);border-radius:22px;
+  background:radial-gradient(circle at 50% 50%,rgba(53,213,237,.16),transparent 55%),var(--panel);
+  display:grid;place-items:center;overflow:hidden
+}
+.flame{font-size:105px;filter:drop-shadow(0 0 25px rgba(255,157,82,.6))}
+.section{padding:55px 0;border-top:1px solid var(--border)}
+.section-heading{margin-bottom:25px}
+.section-heading h2{font-size:30px;margin:5px 0}
+.section-heading p{color:var(--muted);max-width:750px}
+.cards{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:17px
+}
+.card{
+  background:var(--panel);border:1px solid var(--border);
+  padding:22px;border-radius:15px
+}
+.card h3{margin-top:0}
+.card p{color:var(--muted);font-size:14px}
+.tag{
+  display:inline-block;color:var(--cyan);background:rgba(53,213,237,.1);
+  border:1px solid rgba(53,213,237,.25);border-radius:20px;
+  padding:4px 10px;font-size:11px;margin-bottom:10px
+}
+button,select,input{font:inherit}
+button{cursor:pointer}
+.primary-btn,.secondary-btn,.danger-btn{
+  border-radius:9px;padding:10px 15px;font-weight:bold;
+  border:1px solid transparent
+}
+.primary-btn{background:var(--cyan);color:#04131d}
+.primary-btn:hover{background:#80edfa}
+.secondary-btn{color:var(--cyan);background:#10283a;border-color:#286078}
+.secondary-btn:hover{background:#193b53}
+.danger-btn{color:#ff9aa7;background:#351d2a;border-color:#713348}
+.graph-toolbar{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:15px;flex-wrap:wrap;margin:25px 0
+}
+.graph-list,.table-list{display:grid;gap:22px}
+.graph-card,.table-card{
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:17px;padding:22px;min-width:0
+}
+.graph-title-row,.table-title-row{
+  display:flex;justify-content:space-between;align-items:center;
+  gap:12px;flex-wrap:wrap;margin-bottom:18px
+}
+.graph-title-row h3,.table-title-row h3{margin:0;font-size:20px}
+.controls{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+  gap:13px;margin-bottom:20px
+}
+.control{display:flex;flex-direction:column;gap:6px}
+.control label,.small-label{color:var(--muted);font-size:12px;font-weight:bold}
+select,input[type="text"]{
+  width:100%;padding:10px;border-radius:8px;
+  border:1px solid var(--border);background:#091827;color:var(--text)
+}
+select:focus,input:focus{outline:2px solid var(--cyan)}
+.variable-area,.table-settings{
+  background:#0b1929;border:1px solid var(--border);
+  border-radius:12px;padding:15px;margin-bottom:18px
+}
+.variable-header{
+  display:flex;justify-content:space-between;align-items:center;
+  gap:12px;flex-wrap:wrap;margin-bottom:12px
+}
+.variable-row{
+  display:grid;grid-template-columns:minmax(150px,1fr) 55px auto;
+  gap:10px;align-items:center;margin-top:10px
+}
+.variable-row input[type="color"]{
+  width:48px;height:38px;border:none;background:transparent;cursor:pointer
+}
+.unit-note,.graph-message{color:var(--muted);font-size:12px;margin-top:12px}
+.chart-wrap{
+  position:relative;width:100%;height:390px;background:#0b1929;
+  border:1px solid var(--border);border-radius:12px;padding:15px
+}
+.stats{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+  gap:12px;margin-top:20px
+}
+.stat{background:var(--panel2);padding:14px;border-radius:10px}
+.stat strong{display:block;font-size:20px;color:var(--cyan)}
+.stat span{color:var(--muted);font-size:12px}
+.notice{
+  background:rgba(53,213,237,.07);border:1px solid rgba(53,213,237,.2);
+  border-radius:12px;padding:15px;color:var(--muted);
+  font-size:13px;margin-top:18px
+}
+.table-settings{margin:15px 0}
+.table-toolbar{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0
+}
+.table-column-row{
+  display:grid;grid-template-columns:minmax(150px,1fr) auto;
+  gap:10px;align-items:center;margin-top:9px
+}
+.table-link{
+  background:#10283a;border:1px solid #286078;
+  border-radius:10px;padding:14px;margin:15px 0
+}
+.table-link-status{color:var(--cyan);font-size:12px;margin-top:7px}
+.table-sync-details{
+  color:var(--muted);font-size:12px;margin-top:5px
+}
+.table-wrap{
+  overflow-x:auto;overflow-y:auto;max-height:440px;
+  margin-top:15px;border:1px solid var(--border);border-radius:10px
+}
+table{border-collapse:collapse;width:100%;min-width:500px;font-size:13px}
+th,td{padding:11px;text-align:left;border-bottom:1px solid var(--border)}
+th{color:var(--cyan);background:#152840;position:sticky;top:0;z-index:1}
+td{color:var(--muted)}
+.empty-state{
+  border:1px dashed var(--border);border-radius:14px;
+  padding:30px;text-align:center;color:var(--muted)
+}
+.linked-badge{
+  display:inline-block;padding:3px 9px;border-radius:20px;
+  color:var(--green);background:rgba(98,214,160,.1);
+  border:1px solid rgba(98,214,160,.3);font-size:11px;margin-left:8px
+}
+footer{
+  border-top:1px solid var(--border);padding:30px 5%;
+  text-align:center;color:var(--muted);font-size:12px
+}
+@media(max-width:750px){
+  .hero{grid-template-columns:1fr;padding-top:55px}
+  .hero-visual{min-height:180px}
+  .chart-wrap{height:320px}
+  header{position:relative}
+}
+@media(max-width:480px){
+  .variable-row{grid-template-columns:1fr 48px}
+  .variable-row button{grid-column:1/-1}
+  .graph-card,.table-card{padding:14px}
+}
+</style>
 </head>
 
 <body>
-    <h1>Home</h1>
+
+<header>
+  <div class="logo">FIRE <span>DETECTIVE</span></div>
+  <nav>
+    <a href="#home">Home</a>
+    <a href="#research">Research</a>
+    <a href="#explorer">Data Explorer</a>
+    <a href="#science">Science</a>
+  </nav>
+</header>
+
+<main>
+
+<section class="hero" id="home">
+  <div>
+    <div class="eyebrow">NASA flame science explorer</div>
+    <h1>Investigate the <span>Invisible</span></h1>
+    <p>
+      Fire behaves differently in space. Explore how oxygen, airflow,
+      flame size, and brightness relate to combustion. Become a fire
+      detective and investigate the science behind flames.
+    </p>
+    <a href="#explorer"><button class="primary-btn">Explore the data</button></a>
+  </div>
+  <div class="hero-visual"><div class="flame">🔥</div></div>
+</section>
+
+<section class="section" id="research">
+  <div class="section-heading">
+    <div class="eyebrow">Research library</div>
+    <h2>Studying fire beyond Earth</h2>
+    <p>
+      Scientists study flames in different environments to understand
+      combustion and improve knowledge of fire behavior in spacecraft.
+    </p>
+  </div>
+  <div class="cards">
+    <div class="card">
+      <span class="tag">Microgravity</span>
+      <h3>Flames in space</h3>
+      <p>Without normal gravity-driven convection, flames can have different shapes and behaviors than flames on Earth.</p>
+    </div>
+    <div class="card">
+      <span class="tag">Combustion</span>
+      <h3>Cool flames</h3>
+      <p>Some combustion reactions can release heat and light differently from the bright flames we commonly see.</p>
+    </div>
+    <div class="card">
+      <span class="tag">Space science</span>
+      <h3>Fire safety research</h3>
+      <p>Understanding combustion helps researchers investigate how materials and flames behave in spacecraft environments.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="explorer">
+  <div class="section-heading">
+    <div class="eyebrow">Interactive laboratory</div>
+    <h2>Flame Data Explorer</h2>
+    <p>
+      Build your own graphs and tables. Choose a horizontal variable,
+      add compatible vertical variables, customize colors, and compare
+      numerical measurements or categorical experiment parameters.
+    </p>
+  </div>
+
+  <div class="notice">
+    <strong>About this dataset:</strong>
+    The observations below are sample practice data for learning how
+    to use the explorer. They are not verified NASA measurements and
+    should not be used to draw scientific conclusions about real flames.
+    The categorical values are also illustrative practice labels.
+  </div>
+
+  <div class="graph-toolbar">
+    <div>
+      <strong>My custom graphs</strong>
+      <div class="graph-message">Each graph has independent settings.</div>
+    </div>
+    <button class="primary-btn" id="addGraphBtn">＋ Add Graph</button>
+  </div>
+
+  <div class="graph-list" id="graphList"></div>
+
+  <div class="section-heading" style="margin-top:55px">
+    <h2>Practice observations</h2>
+    <p>The sample records currently available to your graphs and tables.</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><strong id="sampleCount">20</strong><span>Practice observations</span></div>
+    <div class="stat"><strong>4</strong><span>Numeric variables</span></div>
+    <div class="stat"><strong>2</strong><span>Categorical parameters</span></div>
+  </div>
+
+  <section class="section" style="padding-top:35px">
+    <div class="section-heading">
+      <div class="eyebrow">Your data views</div>
+      <h2>Custom Data Tables</h2>
+      <p>
+        Create multiple tables, select their columns independently,
+        and optionally link each table to a particular graph.
+        A linked table becomes an exact tabular representation of that graph.
+      </p>
+    </div>
+
+    <div class="graph-toolbar">
+      <div>
+        <strong>My custom tables</strong>
+        <div class="graph-message">Each table can have different columns and a different graph link.</div>
+      </div>
+      <button class="primary-btn" id="addTableBtn">＋ Add Table</button>
+    </div>
+    <div class="table-list" id="tableList"></div>
+  </section>
+</section>
+
+<section class="section" id="science">
+  <div class="section-heading">
+    <div class="eyebrow">Science notes</div>
+    <h2>What should you look for?</h2>
+  </div>
+  <div class="cards">
+    <div class="card">
+      <h3>Patterns</h3>
+      <p>Look for values that increase or decrease together. A pattern in a practice graph is a starting point for asking questions.</p>
+    </div>
+    <div class="card">
+      <h3>Outliers</h3>
+      <p>Look for points that are far away from the others. Check the observation before deciding what it means.</p>
+    </div>
+    <div class="card">
+      <h3>Units matter</h3>
+      <p>Percent, centimeters per second, millimeters, and arbitrary brightness units measure different things. Vertical variables on the same graph must use matching units.</p>
+    </div>
+  </div>
+  <div class="notice">
+    This educational project is not official NASA fire-safety guidance.
+    Graphs show relationships in the displayed practice data only.
+  </div>
+</section>
+
+</main>
+
+<footer>FIRE DETECTIVE · An educational flame-science project</footer>
+
+<script>
+/* =====================================================
+   PRACTICE DATA
+   Illustrative practice data, not verified NASA measurements.
+===================================================== */
+
+const observations = [
+  {id:"A",oxygen:16,airflow:2.1,diameter:1.2,brightness:18,flame:"Dim",hot:"Yes"},
+  {id:"B",oxygen:18,airflow:2.8,diameter:1.5,brightness:25,flame:"Bright",hot:"No"},
+  {id:"C",oxygen:20,airflow:3.4,diameter:1.8,brightness:31,flame:"Bright",hot:"Yes"},
+  {id:"D",oxygen:15,airflow:1.8,diameter:1.1,brightness:14,flame:"Dim",hot:"No"},
+  {id:"E",oxygen:19,airflow:3.0,diameter:1.7,brightness:29,flame:"Bright",hot:"Yes"},
+  {id:"F",oxygen:21,airflow:4.1,diameter:2.0,brightness:38,flame:"Dim",hot:"No"},
+  {id:"G",oxygen:17,airflow:2.5,diameter:1.4,brightness:22,flame:"Bright",hot:"Yes"},
+  {id:"H",oxygen:22,airflow:4.4,diameter:2.2,brightness:42,flame:"Bright",hot:"No"},
+  {id:"I",oxygen:14,airflow:1.5,diameter:1.0,brightness:12,flame:"Dim",hot:"Yes"},
+  {id:"J",oxygen:20,airflow:3.7,diameter:1.9,brightness:34,flame:"Bright",hot:"No"},
+  {id:"K",oxygen:18,airflow:2.6,diameter:1.6,brightness:24,flame:"Dim",hot:"Yes"},
+  {id:"L",oxygen:23,airflow:4.8,diameter:2.4,brightness:47,flame:"Bright",hot:"No"},
+  {id:"M",oxygen:16,airflow:2.0,diameter:1.3,brightness:17,flame:"Dim",hot:"Yes"},
+  {id:"N",oxygen:21,airflow:3.9,diameter:2.1,brightness:39,flame:"Bright",hot:"No"},
+  {id:"O",oxygen:15,airflow:1.9,diameter:1.2,brightness:15,flame:"Dim",hot:"Yes"},
+  {id:"P",oxygen:19,airflow:3.2,diameter:1.8,brightness:30,flame:"Bright",hot:"No"},
+  {id:"Q",oxygen:24,airflow:5.0,diameter:2.5,brightness:50,flame:"Bright",hot:"Yes"},
+  {id:"R",oxygen:17,airflow:2.3,diameter:1.5,brightness:21,flame:"Dim",hot:"No"},
+  {id:"S",oxygen:22,airflow:4.2,diameter:2.3,brightness:44,flame:"Bright",hot:"Yes"},
+  {id:"T",oxygen:18,airflow:2.9,diameter:1.6,brightness:26,flame:"Dim",hot:"No"}
+];
+
+const variables = {
+  id:{label:"Observation ID",type:"id",unit:""},
+  oxygen:{label:"Oxygen",type:"number",unit:"%"},
+  airflow:{label:"Airflow",type:"number",unit:"cm/s"},
+  diameter:{label:"Diameter",type:"number",unit:"mm"},
+  brightness:{label:"Brightness",type:"number",unit:"AU"},
+  flame:{label:"Flame Brightness Category",type:"category",unit:""},
+  hot:{label:"Hot Ignition?",type:"category",unit:""}
+};
+
+const graphList = document.getElementById("graphList");
+const tableList = document.getElementById("tableList");
+
+const charts = new Map();
+const tableLinks = new Map();
+
+let nextGraphId = 1;
+let nextTableId = 1;
+
+const COLORS = [
+  "#35d5ed","#ff9d52","#62d6a0",
+  "#bd9cff","#ff6578","#f4d35e"
+];
+
+/* =====================================================
+   HELPERS
+===================================================== */
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g,char => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  })[char]);
+}
+
+function variableOptions(type="any",selected="") {
+  return Object.entries(variables)
+    .filter(([key,v]) => type==="any" || v.type===type)
+    .map(([key,v]) => `
+      <option value="${key}" ${key===selected?"selected":""}>
+        ${v.label}${v.unit?" ("+v.unit+")":""}
+      </option>
+    `).join("");
+}
+
+function getGraphCard(id) {
+  return document.querySelector(`[data-graph-id="${id}"]`);
+}
+
+function getTableCard(id) {
+  return document.querySelector(`[data-table-id="${id}"]`);
+}
+
+function getGraphRows(id) {
+  const card=getGraphCard(id);
+  if(!card) return [];
+
+  const limit=Number(card.querySelector(".sample-limit").value);
+  return observations.slice(0,limit);
+}
+
+function getXVariable(id) {
+  const card=getGraphCard(id);
+  return card ? card.querySelector(".x-variable").value : "";
+}
+
+function getYRows(id) {
+  const card=getGraphCard(id);
+  return card ? [...card.querySelectorAll(".variable-row")] : [];
+}
+
+function getYVariables(id) {
+  return getYRows(id).map(row => ({
+    key:row.querySelector(".y-variable").value,
+    color:row.querySelector('input[type="color"]').value
+  }));
+}
+
+function getGraphMode(id) {
+  const card=getGraphCard(id);
+  return card ? card.querySelector(".graph-mode").value : "";
+}
+
+/* =====================================================
+   Y-AXIS UNIT RULE
+   X and Y units may differ.
+   All numerical Y variables must share units.
+===================================================== */
+
+function updateUnitNote(id) {
+  const card=getGraphCard(id);
+  if(!card) return;
+
+  const note=card.querySelector(".unit-note");
+  const ys=getYVariables(id);
+
+  if(!ys.length) {
+    note.textContent="Add a numerical Y variable.";
+    return;
+  }
+
+  const unit=variables[ys[0].key].unit;
+  note.textContent=
+    `Y-axis unit: ${unit}. All Y variables on this graph must use ${unit}. The X-axis may use a different unit.`;
+}
+
+/* =====================================================
+   GRAPH VARIABLE ROWS
+===================================================== */
+
+function addVariableRow(id,requestedKey) {
+  const card=getGraphCard(id);
+  if(!card) return;
+
+  const container=card.querySelector(".variable-rows");
+  const existing=getYVariables(id).map(item=>item.key);
+
+  let allowed=Object.keys(variables).filter(key =>
+    variables[key].type==="number" && !existing.includes(key)
+  );
+
+  if(existing.length) {
+    const unit=variables[existing[0]].unit;
+    allowed=allowed.filter(key=>variables[key].unit===unit);
+  }
+
+  if(!allowed.length) {
+    alert("There are no additional numerical variables with matching Y-axis units available for this graph.");
+    return;
+  }
+
+  const key=requestedKey && allowed.includes(requestedKey)
+    ? requestedKey : allowed[0];
+
+  const row=document.createElement("div");
+  row.className="variable-row";
+
+  row.innerHTML=`
+    <select class="y-variable" aria-label="Y-axis variable">
+      ${allowed.map(optionKey=>`
+        <option value="${optionKey}" ${optionKey===key?"selected":""}>
+          ${variables[optionKey].label} (${variables[optionKey].unit})
+        </option>
+      `).join("")}
+    </select>
+    <input type="color" value="${COLORS[container.children.length%COLORS.length]}" aria-label="Variable color">
+    <button class="danger-btn remove-variable" type="button">Remove</button>
+  `;
+
+  container.appendChild(row);
+
+  row.querySelector(".y-variable").addEventListener("change",()=>{
+    const chosen=row.querySelector(".y-variable").value;
+    const otherRows=getYVariables(id).filter(item=>item.key!==key);
+
+    if(otherRows.length &&
+       variables[chosen].unit!==variables[otherRows[0].key].unit) {
+      alert("All Y-axis variables on one graph must have matching units.");
+      row.querySelector(".y-variable").value=key;
+      return;
+    }
+
+    updateUnitNote(id);
+    updateChart(id);
+  });
+
+  row.querySelector('input[type="color"]').addEventListener("input",()=>{
+    updateChart(id);
+  });
+
+  row.querySelector(".remove-variable").addEventListener("click",()=>{
+    if(getYRows(id).length<=1) {
+      alert("Each measurement graph needs at least one Y variable.");
+      return;
+    }
+    row.remove();
+    updateUnitNote(id);
+    updateChart(id);
+  });
+
+  updateUnitNote(id);
+  updateChart(id);
+}
+
+/* =====================================================
+   CREATE NUMBERED GRAPH
+===================================================== */
+
+function addGraph() {
+  const id=nextGraphId++;
+  const card=document.createElement("article");
+
+  card.className="graph-card";
+  card.dataset.graphId=id;
+
+  card.innerHTML=`
+    <div class="graph-title-row">
+      <h3>Graph ${id}</h3>
+      <button class="danger-btn delete-graph" type="button">Delete Graph</button>
+    </div>
+
+    <div class="controls">
+      <div class="control">
+        <label>Graph mode</label>
+        <select class="graph-mode">
+          <option value="measure">Compare numerical measurements</option>
+          <option value="count">Count categories</option>
+        </select>
+      </div>
+
+      <div class="control measurement-control">
+        <label>Horizontal axis (X)</label>
+        <select class="x-variable">${variableOptions("number","diameter")}</select>
+      </div>
+
+      <div class="control measurement-control">
+        <label>Graph type</label>
+        <select class="chart-type">
+          <option value="scatter">Scatter plot</option>
+          <option value="line">Line graph</option>
+          <option value="bar">Bar graph</option>
+        </select>
+      </div>
+
+      <div class="control category-control" style="display:none">
+        <label>Category to count</label>
+        <select class="category-variable">${variableOptions("category","flame")}</select>
+      </div>
+
+      <div class="control">
+        <label>Observations shown</label>
+        <select class="sample-limit">
+          <option value="5">5 observations</option>
+          <option value="10">10 observations</option>
+          <option value="15">15 observations</option>
+          <option value="20" selected>20 observations</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="variable-area measurement-control">
+      <div class="variable-header">
+        <strong>Vertical variables (Y)</strong>
+        <button class="secondary-btn add-variable" type="button">＋ Add Variable</button>
+      </div>
+      <div class="variable-rows"></div>
+      <div class="unit-note"></div>
+    </div>
+
+    <div class="chart-wrap"><canvas id="chart-${id}"></canvas></div>
+    <div class="graph-message">Hover over a point or bar to see its observation ID, values, and units.</div>
+  `;
+
+  graphList.appendChild(card);
+
+  card.querySelector(".graph-mode").addEventListener("change",()=>updateGraphMode(id));
+  card.querySelector(".x-variable").addEventListener("change",()=>updateChart(id));
+  card.querySelector(".chart-type").addEventListener("change",()=>updateChart(id));
+  card.querySelector(".category-variable").addEventListener("change",()=>updateChart(id));
+  card.querySelector(".sample-limit").addEventListener("change",()=>updateChart(id));
+  card.querySelector(".add-variable").addEventListener("click",()=>addVariableRow(id));
+  card.querySelector(".delete-graph").addEventListener("click",()=>deleteGraph(id));
+
+  addVariableRow(id,"brightness");
+  refreshTableGraphOptions();
+}
+
+function updateGraphMode(id) {
+  const card=getGraphCard(id);
+  if(!card) return;
+
+  const mode=getGraphMode(id);
+
+  card.querySelectorAll(".measurement-control").forEach(element=>{
+    element.style.display=mode==="measure"?"":"none";
+  });
+
+  card.querySelectorAll(".category-control").forEach(element=>{
+    element.style.display=mode==="count"?"":"none";
+  });
+
+  updateChart(id);
+}
+
+/* =====================================================
+   DELETE GRAPH AND UNLINK TABLES
+===================================================== */
+
+function deleteGraph(id) {
+  if(charts.has(id)) {
+    charts.get(id).destroy();
+    charts.delete(id);
+  }
+
+  const graphCard=getGraphCard(id);
+  if(graphCard) graphCard.remove();
+
+  document.querySelectorAll(".table-card").forEach(tableCard=>{
+    const tableId=Number(tableCard.dataset.tableId);
+    const select=tableCard.querySelector(".graph-link");
+
+    if(select && select.value===String(id)) {
+      select.value="";
+      tableLinks.set(tableId,"");
+      updateTableLinkStatus(tableId);
+      renderTable(tableId);
+    }
+  });
+
+  refreshTableGraphOptions();
+}
+
+/* =====================================================
+   GRAPH RENDERING
+===================================================== */
+
+function updateChart(id) {
+  const card=getGraphCard(id);
+  if(!card) return;
+
+  if(charts.has(id)) {
+    charts.get(id).destroy();
+    charts.delete(id);
+  }
+
+  const canvas=document.getElementById("chart-"+id);
+  if(!canvas) return;
+
+  const rows=getGraphRows(id);
+
+  if(getGraphMode(id)==="count") {
+    renderCategoryCountGraph(id,rows);
+  } else {
+    renderMeasurementGraph(id,rows);
+  }
+
+  // The linked table is refreshed after every graph redraw.
+  refreshLinkedTables(id);
+}
+
+/* =====================================================
+   CATEGORY COUNT GRAPH
+===================================================== */
+
+function getCategoryCounts(id,rows) {
+  const card=getGraphCard(id);
+  const categoryKey=card.querySelector(".category-variable").value;
+  const counts={};
+
+  rows.forEach(record=>{
+    const value=record[categoryKey] ?? "Missing";
+    counts[value]=(counts[value]||0)+1;
+  });
+
+  return {categoryKey,counts};
+}
+
+function renderCategoryCountGraph(id,rows) {
+  const canvas=document.getElementById("chart-"+id);
+  const result=getCategoryCounts(id,rows);
+  const labels=Object.keys(result.counts);
+  const values=Object.values(result.counts);
+
+  const chart=new Chart(canvas,{
+    type:"bar",
+    data:{
+      labels,
+      datasets:[{
+        label:"Number of observations",
+        data:values,
+        backgroundColor:["#35d5ed","#ff9d52","#62d6a0","#bd9cff","#ff6578"]
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{
+        legend:{labels:{color:"#edf5ff"}},
+        tooltip:{callbacks:{label:context=>`${context.raw} observations`}}
+      },
+      scales:{
+        x:{
+          ticks:{color:"#9bb0c8"},
+          grid:{color:"rgba(155,176,200,.12)"},
+          title:{display:true,text:variables[result.categoryKey].label,color:"#edf5ff"}
+        },
+        y:{
+          beginAtZero:true,
+          ticks:{color:"#9bb0c8",precision:0},
+          grid:{color:"rgba(155,176,200,.12)"},
+          title:{display:true,text:"Number of observations",color:"#edf5ff"}
+        }
+      }
+    }
+  });
+
+  charts.set(id,chart);
+}
+
+/* =====================================================
+   NUMERICAL MEASUREMENT GRAPH
+===================================================== */
+
+function renderMeasurementGraph(id,rows) {
+  const card=getGraphCard(id);
+  const canvas=document.getElementById("chart-"+id);
+
+  const xKey=card.querySelector(".x-variable").value;
+  const xVariable=variables[xKey];
+  const yVariables=getYVariables(id);
+  const chartType=card.querySelector(".chart-type").value;
+
+  if(!yVariables.length) return;
+
+  const yUnit=variables[yVariables[0].key].unit;
+
+  if(yVariables.some(item=>variables[item.key].unit!==yUnit)) {
+    alert("All Y-axis variables must have the same units.");
+    return;
+  }
+
+  const datasets=yVariables.map(item=>{
+    const yKey=item.key;
+    const variable=variables[yKey];
+
+    if(chartType==="bar") {
+      return {
+        label:`${variable.label} (${variable.unit})`,
+        data:rows.map(record=>record[yKey]),
+        backgroundColor:item.color+"bb",
+        borderColor:item.color,
+        borderWidth:1
+      };
+    }
+
+    return {
+      label:`${variable.label} (${variable.unit})`,
+      data:rows.map(record=>({
+        x:record[xKey],
+        y:record[yKey],
+        recordId:record.id,
+        xValue:record[xKey],
+        yValue:record[yKey]
+      })),
+      backgroundColor:item.color,
+      borderColor:item.color,
+      pointRadius:6,
+      pointHoverRadius:9,
+      showLine:chartType==="line",
+      tension:.25
+    };
+  });
+
+  const chart=new Chart(canvas,{
+    type:chartType==="bar"?"bar":"scatter",
+    data:{
+      labels:chartType==="bar"?rows.map(record=>record.id):undefined,
+      datasets
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      interaction:{mode:"nearest",intersect:true},
+      plugins:{
+        legend:{labels:{color:"#edf5ff"}},
+        tooltip:{
+          callbacks:{
+            title:function(items) {
+              if(!items.length) return "";
+              if(chartType==="bar") return `Observation ${rows[items[0].dataIndex].id}`;
+              return `Observation ${items[0].raw.recordId}`;
+            },
+            label:function(context) {
+              const yKey=yVariables[context.datasetIndex].key;
+              const unit=variables[yKey].unit;
+
+              if(chartType==="bar") {
+                const record=rows[context.dataIndex];
+                return [
+                  `${variables[yKey].label}: ${record[yKey]} ${unit}`,
+                  `${xVariable.label}: ${record[xKey]} ${xVariable.unit}`
+                ];
+              }
+
+              const point=context.raw;
+              return [
+                `${variables[yKey].label}: ${point.yValue} ${unit}`,
+                `${xVariable.label}: ${point.xValue} ${xVariable.unit}`
+              ];
+            }
+          }
+        }
+      },
+      scales:{
+        x:{
+          type:chartType==="bar"?"category":"linear",
+          title:{
+            display:true,
+            text:chartType==="bar"?"Observation ID":`${xVariable.label} (${xVariable.unit})`,
+            color:"#edf5ff"
+          },
+          ticks:{color:"#9bb0c8"},
+          grid:{color:"rgba(155,176,200,.12)"}
+        },
+        y:{
+          title:{display:true,text:`Measurements (${yUnit})`,color:"#edf5ff"},
+          ticks:{color:"#9bb0c8"},
+          grid:{color:"rgba(155,176,200,.12)"}
+        }
+      }
+    }
+  });
+
+  charts.set(id,chart);
+  updateUnitNote(id);
+}
+
+/* =====================================================
+   NUMBERED CUSTOM TABLES
+===================================================== */
+
+function addTable() {
+  const id=nextTableId++;
+  const card=document.createElement("article");
+
+  card.className="table-card";
+  card.dataset.tableId=id;
+
+  card.innerHTML=`
+    <div class="table-title-row">
+      <h3>Table ${id}</h3>
+      <button class="danger-btn delete-table" type="button">Delete Table</button>
+    </div>
+
+    <div class="table-settings">
+      <div class="variable-header">
+        <strong>Table Columns</strong>
+        <button class="secondary-btn add-column" type="button">＋ Add Column</button>
+      </div>
+      <div class="table-columns"></div>
+      <div class="table-toolbar">
+        <button class="secondary-btn reset-columns" type="button">Reset Columns</button>
+      </div>
+    </div>
+
+    <div class="table-link">
+      <div class="control">
+        <label>Link this table to a specific graph</label>
+        <select class="graph-link">
+          <option value="">No graph linked — show custom table</option>
+        </select>
+      </div>
+      <div class="table-link-status">This table is independent and shows all observations.</div>
+      <div class="table-sync-details"></div>
+    </div>
+
+    <div class="table-wrap">
+      <table><thead></thead><tbody></tbody></table>
+    </div>
+  `;
+
+  tableList.appendChild(card);
+  tableLinks.set(id,"");
+
+  card.querySelector(".add-column").addEventListener("click",()=>addTableColumn(id));
+  card.querySelector(".reset-columns").addEventListener("click",()=>resetTableColumns(id));
+  card.querySelector(".delete-table").addEventListener("click",()=>deleteTable(id));
+
+  card.querySelector(".graph-link").addEventListener("change",event=>{
+    const selected=event.target.value;
+    tableLinks.set(id,selected);
+
+    // Linked tables are automatically converted to graph-matching columns.
+    updateTableLinkStatus(id);
+    renderTable(id);
+  });
+
+  addTableColumn(id,"id");
+  addTableColumn(id,"oxygen");
+  addTableColumn(id,"flame");
+
+  refreshTableGraphOptions();
+  renderTable(id);
+}
+
+/* =====================================================
+   INDEPENDENT TABLE COLUMN CONTROLS
+===================================================== */
+
+function addTableColumn(id,initialKey) {
+  const card=getTableCard(id);
+  if(!card) return;
+
+  const container=card.querySelector(".table-columns");
+  const row=document.createElement("div");
+
+  row.className="table-column-row";
+  row.innerHTML=`
+    <select class="table-column-variable">${variableOptions("any",initialKey||"brightness")}</select>
+    <button class="danger-btn remove-column" type="button">Remove</button>
+  `;
+
+  container.appendChild(row);
+
+  row.querySelector(".table-column-variable").addEventListener("change",()=>renderTable(id));
+
+  row.querySelector(".remove-column").addEventListener("click",()=>{
+    row.remove();
+    renderTable(id);
+  });
+
+  renderTable(id);
+}
+
+function resetTableColumns(id) {
+  const card=getTableCard(id);
+  if(!card) return;
+
+  card.querySelector(".table-columns").innerHTML="";
+  addTableColumn(id,"id");
+  addTableColumn(id,"oxygen");
+  addTableColumn(id,"flame");
+}
+
+function deleteTable(id) {
+  const card=getTableCard(id);
+  if(card) card.remove();
+  tableLinks.delete(id);
+}
+
+/* =====================================================
+   TABLE-TO-GRAPH LINKING
+===================================================== */
+
+function refreshTableGraphOptions() {
+  const graphCards=[...document.querySelectorAll(".graph-card")];
+
+  document.querySelectorAll(".table-card").forEach(card=>{
+    const tableId=Number(card.dataset.tableId);
+    const select=card.querySelector(".graph-link");
+    if(!select) return;
+
+    const current=select.value;
+
+    select.innerHTML=`
+      <option value="">No graph linked — show custom table</option>
+    `;
+
+    graphCards.forEach(graphCard=>{
+      const graphId=graphCard.dataset.graphId;
+      const option=document.createElement("option");
+      option.value=graphId;
+      option.textContent=`Graph ${graphId}`;
+      select.appendChild(option);
+    });
+
+    const exists=graphCards.some(graphCard=>
+      graphCard.dataset.graphId===current
+    );
+
+    select.value=exists?current:"";
+    tableLinks.set(tableId,select.value);
+
+    updateTableLinkStatus(tableId);
+    renderTable(tableId);
+  });
+}
+
+function updateTableLinkStatus(id) {
+  const card=getTableCard(id);
+  if(!card) return;
+
+  const select=card.querySelector(".graph-link");
+  const status=card.querySelector(".table-link-status");
+  const details=card.querySelector(".table-sync-details");
+  const settings=card.querySelector(".table-settings");
+
+  const graphId=select.value;
+  const linked=graphId!=="";
+
+  if(linked) {
+    status.innerHTML=`<span class="linked-badge">LINKED</span> This table is an exact data-table copy of Graph ${escapeHTML(graphId)}.`;
+    details.textContent="Columns, categories, observation selection, and values are controlled by the linked graph.";
+    settings.style.display="none";
+  } else {
+    status.textContent="This table is independent and shows all observations using your selected columns.";
+    details.textContent="";
+    settings.style.display="";
+  }
+}
+
+/* =====================================================
+   REFRESH LINKED TABLES AFTER GRAPH CHANGES
+===================================================== */
+
+function refreshLinkedTables(graphId) {
+  document.querySelectorAll(".table-card").forEach(card=>{
+    const tableId=Number(card.dataset.tableId);
+    const select=card.querySelector(".graph-link");
+
+    if(select && select.value===String(graphId)) {
+      tableLinks.set(tableId,select.value);
+      renderTable(tableId);
+    }
+  });
+}
+
+/* =====================================================
+   BUILD TABLE COLUMNS FROM A GRAPH
+===================================================== */
+
+function getLinkedTableDefinition(graphId) {
+  const card=getGraphCard(Number(graphId));
+  if(!card) return null;
+
+  const rows=getGraphRows(Number(graphId));
+  const mode=getGraphMode(Number(graphId));
+
+  if(mode==="count") {
+    const result=getCategoryCounts(Number(graphId),rows);
+    return {
+      mode:"count",
+      title:`Category counts from Graph ${graphId}`,
+      columns:[
+        {label:variables[result.categoryKey].label,key:"category",unit:""},
+        {label:"Number of observations",key:"count",unit:""}
+      ],
+      rows:Object.entries(result.counts).map(([category,count])=>({
+        category,
+        count
+      })),
+      detail:`Category-count graph · ${rows.length} observations · ${variables[result.categoryKey].label}`
+    };
+  }
+
+  const xKey=getXVariable(Number(graphId));
+  const yVariables=getYVariables(Number(graphId));
+
+  const columns=[
+    {label:"Observation ID",key:"id",unit:""},
+    {label:variables[xKey].label,key:xKey,unit:variables[xKey].unit},
+    ...yVariables.map(item=>({
+      label:variables[item.key].label,
+      key:item.key,
+      unit:variables[item.key].unit
+    }))
+  ];
+
+  return {
+    mode:"measure",
+    title:`Measurements from Graph ${graphId}`,
+    columns,
+    rows,
+    detail:
+      `${card.querySelector(".chart-type").value} graph · `+
+      `${rows.length} observations · X: ${variables[xKey].label} · `+
+      `Y: ${yVariables.map(item=>variables[item.key].label).join(", ")}`
+  };
+}
+
+/* =====================================================
+   RENDER TABLE
+   LINKED TABLES COPY THE GRAPH'S FULL DATA CONFIGURATION.
+===================================================== */
+
+function renderTable(id) {
+  const card=getTableCard(id);
+  if(!card) return;
+
+  const thead=card.querySelector("thead");
+  const tbody=card.querySelector("tbody");
+  const title=card.querySelector(".table-title-row h3");
+  const select=card.querySelector(".graph-link");
+  const graphId=select?select.value:"";
+
+  // LINKED TABLE: use graph-generated columns and graph-generated rows.
+  if(graphId!=="") {
+    const definition=getLinkedTableDefinition(graphId);
+
+    if(!definition) {
+      if(select) select.value="";
+      tableLinks.set(id,"");
+      updateTableLinkStatus(id);
+      renderTable(id);
+      return;
+    }
+
+    tableLinks.set(id,graphId);
+    updateTableLinkStatus(id);
+
+    title.innerHTML=`Table ${id} <span class="linked-badge">COPIED FROM GRAPH ${escapeHTML(graphId)}</span>`;
+
+    thead.innerHTML=`
+      <tr>
+        ${definition.columns.map(column=>`
+          <th>
+            ${escapeHTML(column.label)}
+            ${column.unit?" ("+escapeHTML(column.unit)+")":""}
+          </th>
+        `).join("")}
+      </tr>
+    `;
+
+    tbody.innerHTML=definition.rows.map(record=>`
+      <tr>
+        ${definition.columns.map(column=>`
+          <td>${escapeHTML(record[column.key]??"—")}</td>
+        `).join("")}
+      </tr>
+    `).join("");
+
+    card.querySelector(".table-sync-details").textContent=definition.detail;
+    return;
+  }
+
+  // INDEPENDENT TABLE: use its own user-selected columns.
+  tableLinks.set(id,"");
+  updateTableLinkStatus(id);
+  title.textContent=`Table ${id}`;
+
+  const selectedColumns=[
+    ...card.querySelectorAll(".table-column-variable")
+  ].map(input=>input.value);
+
+  if(!selectedColumns.length) {
+    thead.innerHTML="";
+    tbody.innerHTML=`<tr><td colspan="1">Add a column to display data.</td></tr>`;
+    return;
+  }
+
+  thead.innerHTML=`
+    <tr>
+      ${selectedColumns.map(key=>{
+        const variable=variables[key];
+        return `
+          <th>
+            ${escapeHTML(variable.label)}
+            ${variable.unit?" ("+escapeHTML(variable.unit)+")":""}
+          </th>
+        `;
+      }).join("")}
+    </tr>
+  `;
+
+  tbody.innerHTML=observations.map(record=>`
+    <tr>
+      ${selectedColumns.map(key=>{
+        const value=record[key]??"—";
+        const unit=variables[key].unit;
+        return `<td>${escapeHTML(value)}${unit?" "+escapeHTML(unit):""}</td>`;
+      }).join("")}
+    </tr>
+  `).join("");
+}
+
+/* =====================================================
+   SUMMARY AND STARTUP
+===================================================== */
+
+function buildSummary() {
+  document.getElementById("sampleCount").textContent=observations.length;
+}
+
+document.getElementById("addGraphBtn").addEventListener("click",addGraph);
+document.getElementById("addTableBtn").addEventListener("click",addTable);
+
+buildSummary();
+
+// Start with two graphs and one table.
+addGraph();
+addGraph();
+addTable();
+
+</script>
 </body>
-
-
-
 </html>
