@@ -91,6 +91,15 @@
             <div class="chart-box">
                 <canvas id="chart3"></canvas>
             </div>
+            <div class="chart-box">
+                <canvas id="chart4"></canvas>
+            </div>
+            <div class="chart-box">
+                <canvas id="chart5"></canvas>
+            </div>
+            <div class="chart-box">
+                <canvas id="chart6"></canvas>
+            </div>
         </div>
     </div>
 
@@ -180,6 +189,9 @@
         createDarkScatterChart('chart1', 'Diameter vs Brightness', 'x', 'y', 'Diameter (mm)', 'Brightness (au)');
         createDarkScatterChart('chart2', 'Oxygen vs Brightness', 'o2', 'y', 'Oxygen (%)', 'Brightness (au)');
         createDarkScatterChart('chart3', 'Airflow vs Diameter', 'flow', 'x', 'Airflow (cm/s)', 'Diameter (mm)');
+        createDarkScatterChart('chart4', 'Airflow vs Brightness', 'flow', 'y', 'Airflow (cm/s)', 'Brightness (au)');
+        createDarkScatterChart('chart5', 'Oxygen vs Diameter', 'o2', 'x', 'Oxygen (%)', 'Diameter (mm)');
+        createDarkScatterChart('chart6', 'Oxygen vs Airflow', 'o2', 'flow', 'Oxygen (%)', 'Airflow (cm/s)');
     </script>
 </body>
 
