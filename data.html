@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,12 +7,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="fake-ah-website.css">
     <title>Microgravity Fire Prototype - Data</title>
+
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 </head>
 
 <body>
+
     <ul>
         <li><a href="index.html">Home</a></li>
         <li><a href="questions.html">Questions</a></li>
@@ -20,69 +22,80 @@
 
     <h1>Microgravity Fire Data</h1>
 
-    <div>
-        <h2>Table</h2>
-        <table border="1" cellpadding="5" cellspacing="0">
-            <thead>
-                <tr>
-                    <th>Observation</th>
-                    <th>Oxygen (%)</th>
-                    <th>Airflow (cm/s)</th>
-                    <th>Diameter (mm)</th>
-                    <th>Brightness (au)</th>
-                    <th>Label</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr><td>A</td><td>16</td><td>2</td><td>12</td><td>30</td><td>dim</td></tr>
-                <tr><td>B</td><td>18</td><td>3</td><td>15</td><td>38</td><td>dim</td></tr>
-                <tr><td>C</td><td>19</td><td>4</td><td>18</td><td>49</td><td>dim</td></tr>
-                <tr><td>D</td><td>21</td><td>3</td><td>24</td><td>65</td><td>bright</td></tr>
-                <tr><td>E</td><td>22</td><td>5</td><td>27</td><td>73</td><td>bright</td></tr>
-                <tr><td>F</td><td>24</td><td>4</td><td>31</td><td>83</td><td>bright</td></tr>
-                <tr><td>G</td><td>17</td><td>7</td><td>14</td><td>45</td><td>dim</td></tr>
-                <tr><td>H</td><td>23</td><td>8</td><td>28</td><td>78</td><td>bright</td></tr>
-                <tr><td>I</td><td>20</td><td>6</td><td>23</td><td>58</td><td>dim</td></tr>
-                <tr><td>J</td><td>22</td><td>2</td><td>21</td><td>61</td><td>bright</td></tr>
-                <tr><td>K</td><td>18</td><td>8</td><td>19</td><td>53</td><td>dim</td></tr>
-                <tr><td>L</td><td>24</td><td>7</td><td>28</td><td>71</td><td>bright</td></tr>
-                <tr><td>M</td><td>21</td><td>7</td><td>20</td><td>57</td><td>dim</td></tr>
-                <tr><td>N</td><td>19</td><td>2</td><td>22</td><td>60</td><td>bright</td></tr>
-                <tr><td>O</td><td>23</td><td>3</td><td>25</td><td>68</td><td>bright</td></tr>
-                <tr><td>P</td><td>17</td><td>5</td><td>17</td><td>42</td><td>dim</td></tr>
-                <tr><td>Q</td><td>20</td><td>8</td><td>24</td><td>63</td><td>bright</td></tr>
-                <tr><td>R</td><td>22</td><td>7</td><td>22</td><td>59</td><td>dim</td></tr>
-                <tr><td>S</td><td>18</td><td>5</td><td>20</td><td>58</td><td>dim</td></tr>
-                <tr><td>T</td><td>21</td><td>4</td><td>23</td><td>62</td><td>bright</td></tr>
-            </tbody>
-        </table>
+    <!-- OXYGEN SLIDER -->
+    <div class="slider-container">
+
+        <h2>Explore Oxygen Levels in Graphs</h2>
+
+        <label for="oxygenSlider">
+            Minimum Oxygen Concentration:
+            <span id="oxygenValue">16%</span>
+        </label>
+
+        <input
+            type="range"
+            id="oxygenSlider"
+            min="16"
+            max="24"
+            step="1"
+            value="16"
+        >
+
+        <div class="slider-info">
+            Data points displayed in graphs:
+            <span id="observationCount">20</span> / 20
+        </div>
+
+        <button class="reset-button" id="resetButton">
+            Reset Graphs
+        </button>
+
+        <p class="data-note">
+            The slider filters the plotted observations by their
+            recorded oxygen concentration.
+        </p>
+
     </div>
 
+    <!-- SCATTER PLOTS -->
     <div>
         <h2>Scatter Plots</h2>
+
         <div class="charts-container">
+
             <div class="chart-box">
                 <canvas id="chart1"></canvas>
             </div>
+
             <div class="chart-box">
                 <canvas id="chart2"></canvas>
             </div>
+
             <div class="chart-box">
                 <canvas id="chart3"></canvas>
             </div>
+
             <div class="chart-box">
                 <canvas id="chart4"></canvas>
             </div>
+
             <div class="chart-box">
                 <canvas id="chart5"></canvas>
             </div>
+
             <div class="chart-box">
                 <canvas id="chart6"></canvas>
             </div>
+
         </div>
     </div>
 
     <script>
+
+        // -----------------------------
+        // DATA
+        // -----------------------------
+
         const dimData = [
             { label: 'A', x: 12, y: 30, o2: 16, flow: 2 },
             { label: 'B', x: 15, y: 38, o2: 18, flow: 3 },
@@ -109,69 +122,255 @@
             { label: 'T', x: 23, y: 62, o2: 21, flow: 4 }
         ];
 
-        function createDarkScatterChart(canvasId, title, xKey, yKey, xLabel, yLabel) {
-            new Chart(document.getElementById(canvasId), {
-                type: 'scatter',
-                data: {
-                    datasets: [
-                        {
-                            label: 'Dim',
-                            data: dimData.map(d => ({ x: d[xKey], y: d[yKey], label: d.label })),
-                            backgroundColor: 'lightblue',
-                            borderColor: '#00b2cc',
-                            pointRadius: 6
-                        },
-                        {
-                            label: 'Bright',
-                            data: brightData.map(d => ({ x: d[xKey], y: d[yKey], label: d.label })),
-                            backgroundColor: 'whitesmoke',
-                            borderColor: 'lightgray',
-                            pointRadius: 6
-                        }
-                    ]
-                },
-                options: {
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: title,
-                            color: 'rgb(235, 235, 235)',
-                            font: { size: 16 }
-                        },
-                        legend: {
-                            labels: {
-                                color: 'whitesmoke'
+        // -----------------------------
+        // STORE CHARTS
+        // -----------------------------
+
+        const charts = [];
+
+        // -----------------------------
+        // CREATE CHART FUNCTION
+        // -----------------------------
+
+        function createDarkScatterChart(
+            canvasId,
+            title,
+            xKey,
+            yKey,
+            xLabel,
+            yLabel
+        ) {
+
+            const chart = new Chart(
+                document.getElementById(canvasId),
+                {
+                    type: 'scatter',
+
+                    data: {
+                        datasets: [
+                            {
+                                label: 'Dim',
+                                data: dimData.map(d => ({
+                                    x: d[xKey],
+                                    y: d[yKey],
+                                    label: d.label
+                                })),
+                                backgroundColor: 'lightblue',
+                                borderColor: '#00b2cc',
+                                pointRadius: 6
+                            },
+                            {
+                                label: 'Bright',
+                                data: brightData.map(d => ({
+                                    x: d[xKey],
+                                    y: d[yKey],
+                                    label: d.label
+                                })),
+                                backgroundColor: 'whitesmoke',
+                                borderColor: 'lightgray',
+                                pointRadius: 6
                             }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: (ctx) => `Obs ${ctx.raw.label}: (${ctx.raw.x}, ${ctx.raw.y})`
-                            }
-                        }
+                        ]
                     },
-                    scales: {
-                        x: {
-                            title: { display: true, text: xLabel, color: 'whitesmoke' },
-                            ticks: { color: 'whitesmoke' },
-                            grid: { color: '#555555' }
+
+                    options: {
+                        responsive: true,
+
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: title,
+                                color: 'rgb(235, 235, 235)',
+                                font: { size: 16 }
+                            },
+
+                            legend: {
+                                labels: {
+                                    color: 'whitesmoke'
+                                }
+                            },
+
+                            tooltip: {
+                                callbacks: {
+                                    label: (ctx) =>
+                                        `Obs ${ctx.raw.label}: (${ctx.raw.x}, ${ctx.raw.y})`
+                                }
+                            }
                         },
-                        y: {
-                            title: { display: true, text: yLabel, color: 'whitesmoke' },
-                            ticks: { color: 'whitesmoke' },
-                            grid: { color: '#555555' }
+
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: xLabel,
+                                    color: 'whitesmoke'
+                                },
+                                ticks: {
+                                    color: 'whitesmoke'
+                                },
+                                grid: {
+                                    color: '#555555'
+                                }
+                            },
+
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: yLabel,
+                                    color: 'whitesmoke'
+                                },
+                                ticks: {
+                                    color: 'whitesmoke'
+                                },
+                                grid: {
+                                    color: '#555555'
+                                }
+                            }
                         }
                     }
                 }
+            );
+
+            // Save chart information for slider updates
+            charts.push({
+                chart: chart,
+                xKey: xKey,
+                yKey: yKey
             });
+
         }
 
-        createDarkScatterChart('chart1', 'Diameter vs Brightness', 'x', 'y', 'Diameter (mm)', 'Brightness (au)');
-        createDarkScatterChart('chart2', 'Oxygen vs Brightness', 'o2', 'y', 'Oxygen (%)', 'Brightness (au)');
-        createDarkScatterChart('chart3', 'Airflow vs Diameter', 'flow', 'x', 'Airflow (cm/s)', 'Diameter (mm)');
-        createDarkScatterChart('chart4', 'Airflow vs Brightness', 'flow', 'y', 'Airflow (cm/s)', 'Brightness (au)');
-        createDarkScatterChart('chart5', 'Oxygen vs Diameter', 'o2', 'x', 'Oxygen (%)', 'Diameter (mm)');
-        createDarkScatterChart('chart6', 'Oxygen vs Airflow', 'o2', 'flow', 'Oxygen (%)', 'Airflow (cm/s)');
-    </script>
-</body>
+        // -----------------------------
+        // CREATE ALL SIX CHARTS
+        // -----------------------------
 
+        createDarkScatterChart(
+            'chart1',
+            'Diameter vs Brightness',
+            'x', 'y',
+            'Diameter (mm)',
+            'Brightness (au)'
+        );
+
+        createDarkScatterChart(
+            'chart2',
+            'Oxygen vs Brightness',
+            'o2', 'y',
+            'Oxygen (%)',
+            'Brightness (au)'
+        );
+
+        createDarkScatterChart(
+            'chart3',
+            'Airflow vs Diameter',
+            'flow', 'x',
+            'Airflow (cm/s)',
+            'Diameter (mm)'
+        );
+
+        createDarkScatterChart(
+            'chart4',
+            'Airflow vs Brightness',
+            'flow', 'y',
+            'Airflow (cm/s)',
+            'Brightness (au)'
+        );
+
+        createDarkScatterChart(
+            'chart5',
+            'Oxygen vs Diameter',
+            'o2', 'x',
+            'Oxygen (%)',
+            'Diameter (mm)'
+        );
+
+        createDarkScatterChart(
+            'chart6',
+            'Oxygen vs Airflow',
+            'o2', 'flow',
+            'Oxygen (%)',
+            'Airflow (cm/s)'
+        );
+
+        // -----------------------------
+        // OXYGEN SLIDER
+        // -----------------------------
+
+        const oxygenSlider =
+            document.getElementById('oxygenSlider');
+
+        const oxygenValue =
+            document.getElementById('oxygenValue');
+
+        const observationCount =
+            document.getElementById('observationCount');
+
+        function updateDashboard() {
+
+            const minimumOxygen =
+                Number(oxygenSlider.value);
+
+            // Display selected oxygen level
+            oxygenValue.textContent =
+                minimumOxygen + '%';
+
+            // Filter data for graphs only
+            const filteredDim =
+                dimData.filter(d => d.o2 >= minimumOxygen);
+
+            const filteredBright =
+                brightData.filter(d => d.o2 >= minimumOxygen);
+
+            // Update observation count
+            observationCount.textContent =
+                filteredDim.length + filteredBright.length;
+
+            // Update all six graphs
+            charts.forEach(item => {
+
+                const chart = item.chart;
+                const xKey = item.xKey;
+                const yKey = item.yKey;
+
+                chart.data.datasets[0].data =
+                    filteredDim.map(d => ({
+                        x: d[xKey],
+                        y: d[yKey],
+                        label: d.label
+                    }));
+
+                chart.data.datasets[1].data =
+                    filteredBright.map(d => ({
+                        x: d[xKey],
+                        y: d[yKey],
+                        label: d.label
+                    }));
+
+                chart.update();
+
+            });
+
+        }
+
+        // Update graphs when slider moves
+        oxygenSlider.addEventListener(
+            'input',
+            updateDashboard
+        );
+
+        // Reset slider to 16%
+        document.getElementById('resetButton')
+            .addEventListener('click', function() {
+
+                oxygenSlider.value = 16;
+                updateDashboard();
+
+            });
+
+        // Initialize dashboard
+        updateDashboard();
+
+    </script>
+
+</body>
 </html>

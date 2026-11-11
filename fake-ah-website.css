@@ -119,3 +119,51 @@ footer {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
   border: 1px solid #444444;
 }
+
+.slider-container {
+  background: #252525;
+  color: whitesmoke;
+  padding: 20px;
+  margin: 20px 0;
+  border-radius: 10px;
+  max-width: 650px;
+}
+
+.slider-container input {
+  width: 100%;
+  margin: 15px 0;
+  cursor: pointer;
+}
+
+.slider-container label {
+  font-weight: bold;
+}
+
+.slider-info {
+  margin-top: 10px;
+  font-size: 16px;
+}
+
+#oxygenValue {
+  color: lightblue;
+  font-weight: bold;
+}
+
+#observationCount {
+  color: lightgreen;
+  font-weight: bold;
+}
+
+.reset-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.data-note {
+  font-size: 13px;
+  color: #cccccc;
+  margin-top: 12px;
+}
