@@ -84,6 +84,7 @@ button{cursor:pointer}
 .secondary-btn{color:var(--cyan);background:#10283a;border-color:#286078}
 .secondary-btn:hover{background:#193b53}
 .danger-btn{color:#ff9aa7;background:#351d2a;border-color:#713348}
+button:disabled{opacity:.4;cursor:not-allowed}
 .graph-toolbar{
   display:flex;align-items:center;justify-content:space-between;
   gap:15px;flex-wrap:wrap;margin:25px 0
@@ -117,6 +118,7 @@ select:focus,input:focus{outline:2px solid var(--cyan)}
   display:flex;justify-content:space-between;align-items:center;
   gap:12px;flex-wrap:wrap;margin-bottom:12px
 }
+.variable-actions{display:flex;gap:8px;flex-wrap:wrap}
 .variable-row{
   display:grid;grid-template-columns:minmax(150px,1fr) 55px auto;
   gap:10px;align-items:center;margin-top:10px
@@ -124,9 +126,28 @@ select:focus,input:focus{outline:2px solid var(--cyan)}
 .variable-row input[type="color"]{
   width:48px;height:38px;border:none;background:transparent;cursor:pointer
 }
+.category-row{
+  display:grid;grid-template-columns:minmax(150px,1fr) 55px auto;
+  gap:10px;align-items:center;margin-top:10px
+}
+.category-row input[type="color"]{
+  width:48px;height:38px;border:none;background:transparent;cursor:pointer
+}
 .unit-note,.graph-message{color:var(--muted);font-size:12px;margin-top:12px}
+.axis-info{
+  color:var(--muted);font-size:12px;line-height:1.5;
+  background:rgba(53,213,237,.05);border:1px solid rgba(53,213,237,.13);
+  padding:10px;border-radius:9px;margin-top:12px
+}
+.category-legend{
+  display:flex;gap:12px;flex-wrap:wrap;align-items:center;
+  color:var(--muted);font-size:12px;margin:0 0 10px
+}
+.category-legend:empty{display:none}
+.legend-item{display:inline-flex;align-items:center;gap:6px}
+.legend-symbol{font-size:17px;font-weight:bold}
 .chart-wrap{
-  position:relative;width:100%;height:390px;background:#0b1929;
+  position:relative;width:100%;height:430px;background:#0b1929;
   border:1px solid var(--border);border-radius:12px;padding:15px
 }
 .stats{
@@ -154,9 +175,7 @@ select:focus,input:focus{outline:2px solid var(--cyan)}
   border-radius:10px;padding:14px;margin:15px 0
 }
 .table-link-status{color:var(--cyan);font-size:12px;margin-top:7px}
-.table-sync-details{
-  color:var(--muted);font-size:12px;margin-top:5px
-}
+.table-sync-details{color:var(--muted);font-size:12px;margin-top:5px}
 .table-wrap{
   overflow-x:auto;overflow-y:auto;max-height:440px;
   margin-top:15px;border:1px solid var(--border);border-radius:10px
@@ -181,12 +200,12 @@ footer{
 @media(max-width:750px){
   .hero{grid-template-columns:1fr;padding-top:55px}
   .hero-visual{min-height:180px}
-  .chart-wrap{height:320px}
+  .chart-wrap{height:360px}
   header{position:relative}
 }
 @media(max-width:480px){
-  .variable-row{grid-template-columns:1fr 48px}
-  .variable-row button{grid-column:1/-1}
+  .variable-row,.category-row{grid-template-columns:1fr 48px}
+  .variable-row button,.category-row button{grid-column:1/-1}
   .graph-card,.table-card{padding:14px}
 }
 </style>
@@ -254,8 +273,8 @@ footer{
     <h2>Flame Data Explorer</h2>
     <p>
       Build your own graphs and tables. Choose a horizontal variable,
-      add compatible vertical variables, customize colors, and compare
-      numerical measurements or categorical experiment parameters.
+      add numerical measurements, compare matching or different ranges,
+      and place a qualitative variable above the observations.
     </p>
   </div>
 
@@ -326,7 +345,7 @@ footer{
     </div>
     <div class="card">
       <h3>Units matter</h3>
-      <p>Percent, centimeters per second, millimeters, and arbitrary brightness units measure different things. Vertical variables on the same graph must use matching units.</p>
+      <p>Each measurement has its own unit. The graph legend, axis titles, and hover information identify the variables and units.</p>
     </div>
   </div>
   <div class="notice">
@@ -389,8 +408,11 @@ let nextTableId = 1;
 
 const COLORS = [
   "#35d5ed","#ff9d52","#62d6a0",
-  "#bd9cff","#ff6578","#f4d35e"
+  "#bd9cff","#ff6578","#f4d35e",
+  "#72a7ff","#f28bd2"
 ];
+
+const CATEGORY_COLOR = "#f4d35e";
 
 /* =====================================================
    HELPERS
@@ -445,16 +467,78 @@ function getYVariables(id) {
   }));
 }
 
+function getCategoryVariable(id) {
+  const card=getGraphCard(id);
+  if(!card) return null;
+
+  const row=card.querySelector(".category-row");
+  if(!row) return null;
+
+  return {
+    key:row.querySelector(".category-variable").value,
+    color:row.querySelector('input[type="color"]').value
+  };
+}
+
 function getGraphMode(id) {
   const card=getGraphCard(id);
   return card ? card.querySelector(".graph-mode").value : "";
 }
 
+function getNumericKeys() {
+  return Object.keys(variables).filter(key=>variables[key].type==="number");
+}
+
+function getCategoryKeys() {
+  return Object.keys(variables).filter(key=>variables[key].type==="category");
+}
+
 /* =====================================================
-   Y-AXIS UNIT RULE
-   X and Y units may differ.
-   All numerical Y variables must share units.
+   MATCHING RANGE GROUPS
+   Variables with identical minimum and maximum values
+   share one axis. Different ranges receive separate axes.
 ===================================================== */
+
+function getRangeGroups(rows,yVariables) {
+  const groups=[];
+
+  yVariables.forEach(item=>{
+    const values=rows
+      .map(record=>Number(record[item.key]))
+      .filter(value=>Number.isFinite(value));
+
+    if(!values.length) return;
+
+    const min=Math.min(...values);
+    const max=Math.max(...values);
+
+    // Exact data-range match: same minimum and maximum.
+    let group=groups.find(candidate=>
+      candidate.min===min && candidate.max===max
+    );
+
+    if(!group) {
+      group={
+        min,
+        max,
+        variables:[],
+        axisId:"y"+groups.length
+      };
+      groups.push(group);
+    }
+
+    group.variables.push(item);
+  });
+
+  return groups;
+}
+
+function getAxisLabel(group) {
+  return group.variables.map(item=>{
+    const variable=variables[item.key];
+    return `${variable.label}${variable.unit?" ("+variable.unit+")":""}`;
+  }).join(" & ");
+}
 
 function updateUnitNote(id) {
   const card=getGraphCard(id);
@@ -462,20 +546,59 @@ function updateUnitNote(id) {
 
   const note=card.querySelector(".unit-note");
   const ys=getYVariables(id);
+  const rows=getGraphRows(id);
+  const groups=getRangeGroups(rows,ys);
 
   if(!ys.length) {
-    note.textContent="Add a numerical Y variable.";
+    note.textContent="Add at least one numerical Y variable.";
     return;
   }
 
-  const unit=variables[ys[0].key].unit;
-  note.textContent=
-    `Y-axis unit: ${unit}. All Y variables on this graph must use ${unit}. The X-axis may use a different unit.`;
+  const shared=groups.filter(group=>group.variables.length>1);
+  const separate=groups.filter(group=>group.variables.length===1);
+
+  let message="Each numerical variable is compared using its own data range.";
+
+  if(shared.length) {
+    message+=" Variables with matching minimum and maximum values share an axis.";
+  }
+
+  if(separate.length>1) {
+    message+=" Variables with different ranges receive separate axes.";
+  }
+
+  note.textContent=message;
 }
 
 /* =====================================================
-   GRAPH VARIABLE ROWS
+   NUMERICAL VARIABLE ROWS
 ===================================================== */
+
+function refreshNumericSelectOptions(id) {
+  const rows=getYRows(id);
+  const selected=rows.map(row=>row.querySelector(".y-variable").value);
+
+  rows.forEach((row,index)=>{
+    const select=row.querySelector(".y-variable");
+    const current=select.value;
+
+    select.innerHTML=getNumericKeys().map(key=>{
+      const alreadyUsed=selected.includes(key) && key!==current;
+      return `<option value="${key}" ${key===current?"selected":""} ${alreadyUsed?"disabled":""}>
+        ${variables[key].label} (${variables[key].unit})
+      </option>`;
+    }).join("");
+  });
+
+  const button=getGraphCard(id)?.querySelector(".add-variable");
+  if(button) {
+    const remaining=getNumericKeys().filter(key=>!selected.includes(key));
+    button.disabled=remaining.length===0;
+    button.textContent=remaining.length
+      ? "＋ Add Numeric Variable"
+      : "All Numeric Variables Added";
+  }
+}
 
 function addVariableRow(id,requestedKey) {
   const card=getGraphCard(id);
@@ -483,18 +606,10 @@ function addVariableRow(id,requestedKey) {
 
   const container=card.querySelector(".variable-rows");
   const existing=getYVariables(id).map(item=>item.key);
-
-  let allowed=Object.keys(variables).filter(key =>
-    variables[key].type==="number" && !existing.includes(key)
-  );
-
-  if(existing.length) {
-    const unit=variables[existing[0]].unit;
-    allowed=allowed.filter(key=>variables[key].unit===unit);
-  }
+  const allowed=getNumericKeys().filter(key=>!existing.includes(key));
 
   if(!allowed.length) {
-    alert("There are no additional numerical variables with matching Y-axis units available for this graph.");
+    alert("All available numerical variables are already plotted on this graph.");
     return;
   }
 
@@ -505,7 +620,7 @@ function addVariableRow(id,requestedKey) {
   row.className="variable-row";
 
   row.innerHTML=`
-    <select class="y-variable" aria-label="Y-axis variable">
+    <select class="y-variable" aria-label="Numerical variable">
       ${allowed.map(optionKey=>`
         <option value="${optionKey}" ${optionKey===key?"selected":""}>
           ${variables[optionKey].label} (${variables[optionKey].unit})
@@ -520,16 +635,15 @@ function addVariableRow(id,requestedKey) {
 
   row.querySelector(".y-variable").addEventListener("change",()=>{
     const chosen=row.querySelector(".y-variable").value;
-    const otherRows=getYVariables(id).filter(item=>item.key!==key);
+    const duplicate=getYVariables(id).filter(item=>item.key===chosen).length>1;
 
-    if(otherRows.length &&
-       variables[chosen].unit!==variables[otherRows[0].key].unit) {
-      alert("All Y-axis variables on one graph must have matching units.");
+    if(duplicate) {
+      alert("This variable is already plotted.");
       row.querySelector(".y-variable").value=key;
       return;
     }
 
-    updateUnitNote(id);
+    refreshNumericSelectOptions(id);
     updateChart(id);
   });
 
@@ -539,15 +653,69 @@ function addVariableRow(id,requestedKey) {
 
   row.querySelector(".remove-variable").addEventListener("click",()=>{
     if(getYRows(id).length<=1) {
-      alert("Each measurement graph needs at least one Y variable.");
+      alert("Each measurement graph needs at least one numerical Y variable.");
       return;
     }
+
     row.remove();
-    updateUnitNote(id);
+    refreshNumericSelectOptions(id);
     updateChart(id);
   });
 
-  updateUnitNote(id);
+  refreshNumericSelectOptions(id);
+  updateChart(id);
+}
+
+/* =====================================================
+   QUALITATIVE OVERLAY
+===================================================== */
+
+function addCategoryOverlay(id) {
+  const card=getGraphCard(id);
+  if(!card) return;
+
+  if(getCategoryVariable(id)) {
+    alert("Only one qualitative overlay can be added to each graph.");
+    return;
+  }
+
+  const area=card.querySelector(".category-area");
+  const available=getCategoryKeys();
+
+  if(!available.length) return;
+
+  const row=document.createElement("div");
+  row.className="category-row";
+
+  row.innerHTML=`
+    <select class="category-variable" aria-label="Qualitative overlay variable">
+      ${available.map(key=>`
+        <option value="${key}">${variables[key].label}</option>
+      `).join("")}
+    </select>
+    <input type="color" value="${CATEGORY_COLOR}" aria-label="Category marker color">
+    <button class="danger-btn remove-category" type="button">Remove</button>
+  `;
+
+  area.appendChild(row);
+  card.querySelector(".add-category").disabled=true;
+  card.querySelector(".add-category").textContent="Qualitative Overlay Added";
+
+  row.querySelector(".category-variable").addEventListener("change",()=>{
+    updateChart(id);
+  });
+
+  row.querySelector('input[type="color"]').addEventListener("input",()=>{
+    updateChart(id);
+  });
+
+  row.querySelector(".remove-category").addEventListener("click",()=>{
+    row.remove();
+    card.querySelector(".add-category").disabled=false;
+    card.querySelector(".add-category").textContent="＋ Add Qualitative Overlay";
+    updateChart(id);
+  });
+
   updateChart(id);
 }
 
@@ -609,15 +777,30 @@ function addGraph() {
 
     <div class="variable-area measurement-control">
       <div class="variable-header">
-        <strong>Vertical variables (Y)</strong>
-        <button class="secondary-btn add-variable" type="button">＋ Add Variable</button>
+        <strong>Numerical Y variables</strong>
+        <div class="variable-actions">
+          <button class="secondary-btn add-variable" type="button">＋ Add Numeric Variable</button>
+          <button class="secondary-btn add-category" type="button">＋ Add Qualitative Overlay</button>
+        </div>
       </div>
       <div class="variable-rows"></div>
+      <div class="category-area"></div>
       <div class="unit-note"></div>
+      <div class="axis-info">
+        <strong>How the Y-axes work:</strong>
+        Variables with the same minimum and maximum data values share one Y-axis.
+        The axis title lists every variable on that axis. Variables with different
+        ranges receive separate axes. Units are shown beside each variable name.
+      </div>
     </div>
 
+    <div class="category-legend"></div>
     <div class="chart-wrap"><canvas id="chart-${id}"></canvas></div>
-    <div class="graph-message">Hover over a point or bar to see its observation ID, values, and units.</div>
+    <div class="graph-message">
+      The chart legend identifies each numerical variable. Qualitative markers
+      appear above their matching observations. Hover over a point or bar to
+      see its observation ID, variable, value, and unit.
+    </div>
   `;
 
   graphList.appendChild(card);
@@ -628,6 +811,7 @@ function addGraph() {
   card.querySelector(".category-variable").addEventListener("change",()=>updateChart(id));
   card.querySelector(".sample-limit").addEventListener("change",()=>updateChart(id));
   card.querySelector(".add-variable").addEventListener("click",()=>addVariableRow(id));
+  card.querySelector(".add-category").addEventListener("click",()=>addCategoryOverlay(id));
   card.querySelector(".delete-graph").addEventListener("click",()=>deleteGraph(id));
 
   addVariableRow(id,"brightness");
@@ -648,6 +832,7 @@ function updateGraphMode(id) {
     element.style.display=mode==="count"?"":"none";
   });
 
+  card.querySelector(".category-legend").innerHTML="";
   updateChart(id);
 }
 
@@ -703,7 +888,6 @@ function updateChart(id) {
     renderMeasurementGraph(id,rows);
   }
 
-  // The linked table is refreshed after every graph redraw.
   refreshLinkedTables(id);
 }
 
@@ -744,8 +928,16 @@ function renderCategoryCountGraph(id,rows) {
       responsive:true,
       maintainAspectRatio:false,
       plugins:{
-        legend:{labels:{color:"#edf5ff"}},
-        tooltip:{callbacks:{label:context=>`${context.raw} observations`}}
+        legend:{
+          display:true,
+          position:"top",
+          labels:{color:"#edf5ff",padding:18}
+        },
+        tooltip:{
+          callbacks:{
+            label:context=>`${context.raw} observations`
+          }
+        }
       },
       scales:{
         x:{
@@ -767,6 +959,65 @@ function renderCategoryCountGraph(id,rows) {
 }
 
 /* =====================================================
+   QUALITATIVE MARKER PLUGIN
+   Places a category symbol above each observation's
+   plotted point or bar group.
+===================================================== */
+
+function createCategoryMarkerPlugin(rows,categoryKey,color) {
+  return {
+    id:"qualitativeMarkers",
+    afterDatasetsDraw(chart) {
+      if(!categoryKey) return;
+
+      const ctx=chart.ctx;
+      const chartArea=chart.chartArea;
+      if(!chartArea) return;
+
+      ctx.save();
+      ctx.font="bold 15px Arial";
+      ctx.textAlign="center";
+      ctx.textBaseline="middle";
+
+      rows.forEach((record,index)=>{
+        const value=record[categoryKey];
+        let symbol=String(value ?? "—");
+
+        if(value==="Yes") symbol="✓";
+        if(value==="No") symbol="✕";
+        if(value==="Bright") symbol="B";
+        if(value==="Dim") symbol="D";
+
+        const positions=[];
+
+        chart.data.datasets.forEach((dataset,datasetIndex)=>{
+          const meta=chart.getDatasetMeta(datasetIndex);
+          const element=meta.data[index];
+
+          if(element && Number.isFinite(element.x) && Number.isFinite(element.y)) {
+            positions.push({x:element.x,y:element.y});
+          }
+        });
+
+        if(!positions.length) return;
+
+        // Put the marker above the highest plotted item for this observation.
+        const x=positions.reduce((sum,p)=>sum+p.x,0)/positions.length;
+        const highestY=Math.min(...positions.map(p=>p.y));
+        const y=Math.max(chartArea.top+12,highestY-17);
+
+        if(x<chartArea.left || x>chartArea.right) return;
+
+        ctx.fillStyle=color;
+        ctx.fillText(symbol,x,y);
+      });
+
+      ctx.restore();
+    }
+  };
+}
+
+/* =====================================================
    NUMERICAL MEASUREMENT GRAPH
 ===================================================== */
 
@@ -777,40 +1028,49 @@ function renderMeasurementGraph(id,rows) {
   const xKey=card.querySelector(".x-variable").value;
   const xVariable=variables[xKey];
   const yVariables=getYVariables(id);
+  const categoryVariable=getCategoryVariable(id);
   const chartType=card.querySelector(".chart-type").value;
 
   if(!yVariables.length) return;
 
-  const yUnit=variables[yVariables[0].key].unit;
+  const rangeGroups=getRangeGroups(rows,yVariables);
 
-  if(yVariables.some(item=>variables[item.key].unit!==yUnit)) {
-    alert("All Y-axis variables must have the same units.");
-    return;
-  }
+  // Assign each numerical variable to its matching range group.
+  const axisByVariable={};
+  rangeGroups.forEach(group=>{
+    group.variables.forEach(item=>{
+      axisByVariable[item.key]=group.axisId;
+    });
+  });
 
   const datasets=yVariables.map(item=>{
     const yKey=item.key;
     const variable=variables[yKey];
+    const axisId=axisByVariable[yKey];
 
     if(chartType==="bar") {
       return {
         label:`${variable.label} (${variable.unit})`,
-        data:rows.map(record=>record[yKey]),
+        data:rows.map(record=>Number(record[yKey])),
+        yAxisID:axisId,
         backgroundColor:item.color+"bb",
         borderColor:item.color,
-        borderWidth:1
+        borderWidth:1,
+        categoryPercentage:.78,
+        barPercentage:.85
       };
     }
 
     return {
       label:`${variable.label} (${variable.unit})`,
       data:rows.map(record=>({
-        x:record[xKey],
-        y:record[yKey],
+        x:Number(record[xKey]),
+        y:Number(record[yKey]),
         recordId:record.id,
         xValue:record[xKey],
         yValue:record[yKey]
       })),
+      yAxisID:axisId,
       backgroundColor:item.color,
       borderColor:item.color,
       pointRadius:6,
@@ -820,63 +1080,151 @@ function renderMeasurementGraph(id,rows) {
     };
   });
 
+  // Create a separate Y scale for each unique data range.
+  const scales={};
+
+  scales.x={
+    type:chartType==="bar"?"category":"linear",
+    title:{
+      display:true,
+      text:chartType==="bar"?"Observation ID":`${xVariable.label} (${xVariable.unit})`,
+      color:"#edf5ff"
+    },
+    ticks:{color:"#9bb0c8"},
+    grid:{color:"rgba(155,176,200,.12)"}
+  };
+
+  rangeGroups.forEach((group,index)=>{
+    const position=index===0?"left":"right";
+    const label=getAxisLabel(group);
+
+    scales[group.axisId]={
+      type:"linear",
+      position,
+      min:group.min,
+      max:group.max===group.min?group.max+1:group.max,
+      title:{
+        display:true,
+        text:label,
+        color:"#edf5ff",
+        font:{size:11}
+      },
+      ticks:{color:"#9bb0c8"},
+      grid:{
+        drawOnChartArea:index===0,
+        color:"rgba(155,176,200,.12)"
+      },
+      border:{display:true},
+      ...(index>0?{offset:true}:{})
+    };
+  });
+
+  // Put category legend information above the graph.
+  const legend=card.querySelector(".category-legend");
+
+  if(categoryVariable) {
+    const categoryKey=categoryVariable.key;
+    const uniqueValues=[...new Set(rows.map(record=>record[categoryKey]))];
+
+    legend.innerHTML=`
+      <span class="legend-item">
+        <span class="legend-symbol" style="color:${categoryVariable.color}">●</span>
+        <strong>${escapeHTML(variables[categoryKey].label)}:</strong>
+      </span>
+      ${uniqueValues.map(value=>{
+        let symbol=String(value);
+        if(value==="Yes") symbol="✓ Yes";
+        if(value==="No") symbol="✕ No";
+        if(value==="Bright") symbol="B Bright";
+        if(value==="Dim") symbol="D Dim";
+
+        return `<span class="legend-item">
+          <span class="legend-symbol" style="color:${categoryVariable.color}">${escapeHTML(symbol.split(" ")[0])}</span>
+          ${escapeHTML(symbol.split(" ").slice(1).join(" "))}
+        </span>`;
+      }).join("")}
+    `;
+  } else {
+    legend.innerHTML="";
+  }
+
+  const plugins=[];
+
+  if(categoryVariable) {
+    plugins.push(
+      createCategoryMarkerPlugin(
+        rows,
+        categoryVariable.key,
+        categoryVariable.color
+      )
+    );
+  }
+
   const chart=new Chart(canvas,{
     type:chartType==="bar"?"bar":"scatter",
     data:{
       labels:chartType==="bar"?rows.map(record=>record.id):undefined,
       datasets
     },
+    plugins,
     options:{
       responsive:true,
       maintainAspectRatio:false,
       interaction:{mode:"nearest",intersect:true},
+      layout:{padding:{top:categoryVariable?8:0}},
       plugins:{
-        legend:{labels:{color:"#edf5ff"}},
+        legend:{
+          display:true,
+          position:"top",
+          align:"start",
+          labels:{
+            color:"#edf5ff",
+            padding:18,
+            boxWidth:14,
+            boxHeight:14,
+            usePointStyle:true,
+            pointStyle:"circle"
+          }
+        },
         tooltip:{
           callbacks:{
             title:function(items) {
               if(!items.length) return "";
-              if(chartType==="bar") return `Observation ${rows[items[0].dataIndex].id}`;
+              if(chartType==="bar") {
+                return `Observation ${rows[items[0].dataIndex].id}`;
+              }
               return `Observation ${items[0].raw.recordId}`;
             },
             label:function(context) {
               const yKey=yVariables[context.datasetIndex].key;
-              const unit=variables[yKey].unit;
+              const variable=variables[yKey];
+              const record=rows[context.dataIndex];
 
               if(chartType==="bar") {
-                const record=rows[context.dataIndex];
                 return [
-                  `${variables[yKey].label}: ${record[yKey]} ${unit}`,
+                  `${variable.label}: ${record[yKey]} ${variable.unit}`,
                   `${xVariable.label}: ${record[xKey]} ${xVariable.unit}`
                 ];
               }
 
               const point=context.raw;
               return [
-                `${variables[yKey].label}: ${point.yValue} ${unit}`,
+                `${variable.label}: ${point.yValue} ${variable.unit}`,
                 `${xVariable.label}: ${point.xValue} ${xVariable.unit}`
+              ];
+            },
+            afterBody:function(items) {
+              if(!categoryVariable || !items.length) return [];
+
+              const record=rows[items[0].dataIndex];
+              return [
+                `${variables[categoryVariable.key].label}: ${record[categoryVariable.key]}`
               ];
             }
           }
         }
       },
-      scales:{
-        x:{
-          type:chartType==="bar"?"category":"linear",
-          title:{
-            display:true,
-            text:chartType==="bar"?"Observation ID":`${xVariable.label} (${xVariable.unit})`,
-            color:"#edf5ff"
-          },
-          ticks:{color:"#9bb0c8"},
-          grid:{color:"rgba(155,176,200,.12)"}
-        },
-        y:{
-          title:{display:true,text:`Measurements (${yUnit})`,color:"#edf5ff"},
-          ticks:{color:"#9bb0c8"},
-          grid:{color:"rgba(155,176,200,.12)"}
-        }
-      }
+      scales
     }
   });
 
@@ -938,8 +1286,6 @@ function addTable() {
   card.querySelector(".graph-link").addEventListener("change",event=>{
     const selected=event.target.value;
     tableLinks.set(id,selected);
-
-    // Linked tables are automatically converted to graph-matching columns.
     updateTableLinkStatus(id);
     renderTable(id);
   });
@@ -1104,6 +1450,7 @@ function getLinkedTableDefinition(graphId) {
 
   const xKey=getXVariable(Number(graphId));
   const yVariables=getYVariables(Number(graphId));
+  const categoryVariable=getCategoryVariable(Number(graphId));
 
   const columns=[
     {label:"Observation ID",key:"id",unit:""},
@@ -1115,6 +1462,14 @@ function getLinkedTableDefinition(graphId) {
     }))
   ];
 
+  if(categoryVariable) {
+    columns.push({
+      label:variables[categoryVariable.key].label,
+      key:categoryVariable.key,
+      unit:""
+    });
+  }
+
   return {
     mode:"measure",
     title:`Measurements from Graph ${graphId}`,
@@ -1123,7 +1478,8 @@ function getLinkedTableDefinition(graphId) {
     detail:
       `${card.querySelector(".chart-type").value} graph · `+
       `${rows.length} observations · X: ${variables[xKey].label} · `+
-      `Y: ${yVariables.map(item=>variables[item.key].label).join(", ")}`
+      `Y: ${yVariables.map(item=>variables[item.key].label+" ("+variables[item.key].unit+")").join(", ")}`+
+      (categoryVariable?` · Overlay: ${variables[categoryVariable.key].label}`:"")
   };
 }
 
