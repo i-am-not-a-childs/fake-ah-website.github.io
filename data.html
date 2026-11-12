@@ -1,376 +1,706 @@
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="fake-ah-website.css">
-    <title>Microgravity Fire Prototype - Data</title>
-
-    <!-- Chart.js CDN -->
+    <title>Microgravity Fire Prototype - Combined Data</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
 
+<nav>
     <ul>
-        <li><a href="index.html">Home</a></li>
-        <li><a href="questions.html">Questions</a></li>
-        <li><a href="data.html">Data</a></li>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#charts">Charts</a></li>
+        <li><a href="#mega-dataset">Mega-dataset</a></li>
+        <li><a href="#column-notes">Column Notes</a></li>
+    </ul>
+</nav>
+
+<header id="overview">
+    <h1>Microgravity Fire Prototype - Combined Data</h1>
+    <p>
+        This page combines the interactive oxygen-filtered
+        scatter plot dashboard with the synthetic experiment
+        mega-dataset.
+    </p>
+    <p>
+        <strong>Data distinction:</strong>
+        The charts use the separate 20-point A-T demonstration
+        dataset. The experiment table contains 8 experiment
+        records (EXP-001 through EXP-008).
+    </p>
+</header>
+
+<!-- OXYGEN SLIDER -->
+
+<div id="oxygen-filter">
+
+    <h2>Explore Oxygen Levels in Graphs</h2>
+
+    <label for="oxygenSlider">
+        Minimum Oxygen Concentration:
+        <span id="oxygenValue">16%</span>
+    </label>
+
+    <input
+        type="range"
+        id="oxygenSlider"
+        min="16"
+        max="24"
+        step="1"
+        value="16"
+    >
+
+    <p>
+        Data points displayed:
+        <span id="observationCount">20</span> / 20
+    </p>
+
+    <button id="resetButton">
+        Reset Graphs
+    </button>
+
+    <p>
+        The slider filters plotted observations by their
+        recorded oxygen concentration.
+    </p>
+
+</div>
+
+<!-- SCATTER PLOTS -->
+
+<div id="charts">
+
+    <h2>Scatter Plots</h2>
+
+    <div>
+        <canvas id="chart1"></canvas>
+    </div>
+
+    <div>
+        <canvas id="chart2"></canvas>
+    </div>
+
+    <div>
+        <canvas id="chart3"></canvas>
+    </div>
+
+    <div>
+        <canvas id="chart4"></canvas>
+    </div>
+
+    <div>
+        <canvas id="chart5"></canvas>
+    </div>
+
+    <div>
+        <canvas id="chart6"></canvas>
+    </div>
+
+</div>
+
+<!-- MEGA DATASET -->
+
+<section id="mega-dataset">
+
+    <h2>Combined Experiment Dataset</h2>
+
+    <p>Rows: 8. Columns: 25. Unique experiments: 8.</p>
+
+    <table>
+
+        <caption>
+            Combined experiment dataset.
+            Blank cells indicate missing measurements.
+        </caption>
+
+        <thead>
+            <tr>
+                <th>experiment_id</th>
+                <th>experiment_name</th>
+                <th>material_code</th>
+                <th>material_description</th>
+                <th>gravity_condition</th>
+                <th>oxygen_percent</th>
+                <th>pressure_kPa</th>
+                <th>max_temperature_C</th>
+                <th>average_airflow_m_per_s</th>
+                <th>flame_spread_cm_per_min</th>
+                <th>burn_duration_seconds</th>
+                <th>ignition_observed</th>
+                <th>thickness_mm</th>
+                <th>density_kg_per_m3</th>
+                <th>sensor_reading_count</th>
+                <th>experiment_date</th>
+                <th>raw_sensor_readings_json</th>
+                <th>flame_spread_value</th>
+                <th>flame_spread_unit</th>
+                <th>burn_duration_value</th>
+                <th>burn_duration_unit</th>
+                <th>thickness_value</th>
+                <th>thickness_unit</th>
+                <th>density_value</th>
+                <th>density_unit</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            <tr>
+                <td>EXP-001</td>
+                <td>Saffire-like Demo A</td>
+                <td>Panel-A</td>
+                <td>Composite panel</td>
+                <td>Microgravity</td>
+                <td>21</td>
+                <td>101.3</td>
+                <td>265.555556</td>
+                <td>0.141185</td>
+                <td>12</td>
+                <td>90</td>
+                <td>Yes</td>
+                <td>3</td>
+                <td>1350</td>
+                <td>3</td>
+                <td>2026-01-12</td>
+                <td><code>[{"time_seconds":0,"temperature_value":"180","temperature_unit":"C","airflow_value":"0.2","airflow_unit":"m/s"},{"time_seconds":30,"temperature_value":"245","temperature_unit":"C","airflow_value":"0.22","airflow_unit":"m/s"},{"time_seconds":60,"temperature_value":"510","temperature_unit":"F","airflow_value":"0.7","airflow_unit":"ft/min"}]</code></td>
+                <td>12.0</td>
+                <td>cm/min</td>
+                <td>90.0</td>
+                <td>seconds</td>
+                <td>3.0</td>
+                <td>mm</td>
+                <td>1.35</td>
+                <td>g/cm3</td>
+            </tr>
+
+            <tr>
+                <td>EXP-002</td>
+                <td>BASS-like Demo B</td>
+                <td>Foam-B</td>
+                <td>Polymer foam</td>
+                <td>Microgravity</td>
+                <td>25</td>
+                <td>95.0</td>
+                <td>230</td>
+                <td>0.326733</td>
+                <td>2.032</td>
+                <td>150</td>
+                <td>Yes</td>
+                <td>6.35</td>
+                <td>42</td>
+                <td>3</td>
+                <td>2026-01-13</td>
+                <td><code>[{"time_seconds":0,"temperature_value":"350","temperature_unit":"F","airflow_value":"0.3","airflow_unit":"m/s"},{"time_seconds":30,"temperature_value":"410","temperature_unit":"F","airflow_value":"0.35","airflow_unit":"m/s"},{"time_seconds":60,"temperature_value":"230","temperature_unit":"C","airflow_value":"65.0","airflow_unit":"ft/min"}]</code></td>
+                <td>0.8</td>
+                <td>in/min</td>
+                <td>2.5</td>
+                <td>minutes</td>
+                <td>0.25</td>
+                <td>in</td>
+                <td>42.0</td>
+                <td>kg/m3</td>
+            </tr>
+
+            <tr>
+                <td>EXP-003</td>
+                <td>Lab Demo C</td>
+                <td>Fabric-C</td>
+                <td>Woven fabric</td>
+                <td>1g</td>
+                <td>30</td>
+                <td>101.3</td>
+                <td>330</td>
+                <td>0.45</td>
+                <td>18</td>
+                <td>120</td>
+                <td>Yes</td>
+                <td>1.8</td>
+                <td>650</td>
+                <td>3</td>
+                <td>2026-01-14</td>
+                <td><code>[{"time_seconds":0,"temperature_value":"190","temperature_unit":"C","airflow_value":"0.4","airflow_unit":"m/s"},{"time_seconds":30,"temperature_value":"280","temperature_unit":"C","airflow_value":"0.45","airflow_unit":"m/s"},{"time_seconds":60,"temperature_value":"330","temperature_unit":"C","airflow_value":"0.5","airflow_unit":"m/s"}]</code></td>
+                <td>18.0</td>
+                <td>cm/min</td>
+                <td>120.0</td>
+                <td>seconds</td>
+                <td>1.8</td>
+                <td>mm</td>
+                <td>0.65</td>
+                <td>g/cm3</td>
+            </tr>
+
+            <tr>
+                <td>EXP-004</td>
+                <td>Saffire-like Demo D</td>
+                <td>Panel-A</td>
+                <td>Composite panel</td>
+                <td>Microgravity</td>
+                <td>28</td>
+                <td>88.0</td>
+                <td>271.111111</td>
+                <td>0.265</td>
+                <td>2.794</td>
+                <td>180</td>
+                <td>Yes</td>
+                <td>3</td>
+                <td>1350</td>
+                <td>2</td>
+                <td>2026-01-15</td>
+                <td><code>[{"time_seconds":0,"temperature_value":"400","temperature_unit":"F","airflow_value":"0.25","airflow_unit":"m/s"},{"time_seconds":30,"temperature_value":"520","temperature_unit":"F","airflow_value":"0.28","airflow_unit":"m/s"}]</code></td>
+                <td>1.1</td>
+                <td>in/min</td>
+                <td>3.0</td>
+                <td>minutes</td>
+                <td>3.0</td>
+                <td>mm</td>
+                <td>1.35</td>
+                <td>g/cm3</td>
+            </tr>
+
+            <tr>
+                <td>EXP-005</td>
+                <td>Lab Demo E</td>
+                <td>Foam-B</td>
+                <td>Polymer foam</td>
+                <td>1g</td>
+                <td>21</td>
+                <td>101.3</td>
+                <td>205</td>
+                <td>0.31</td>
+                <td>0</td>
+                <td>35</td>
+                <td>No</td>
+                <td>6.35</td>
+                <td>42</td>
+                <td>2</td>
+                <td>2026-01-16</td>
+                <td><code>[{"time_seconds":0,"temperature_value":"160","temperature_unit":"C","airflow_value":"0.3","airflow_unit":"m/s"},{"time_seconds":30,"temperature_value":"205","temperature_unit":"C","airflow_value":"0.32","airflow_unit":"m/s"}]</code></td>
+                <td>0.0</td>
+                <td>cm/min</td>
+                <td>35.0</td>
+                <td>seconds</td>
+                <td>0.25</td>
+                <td>in</td>
+                <td>42.0</td>
+                <td>kg/m3</td>
+            </tr>
+
+            <tr>
+                <td>EXP-006</td>
+                <td>BASS-like Demo F</td>
+                <td>Coating-D</td>
+                <td>Protective coating</td>
+                <td>Microgravity</td>
+                <td>32</td>
+                <td>90.0</td>
+                <td>310</td>
+                <td>0.19</td>
+                <td>22</td>
+                <td>240</td>
+                <td>Yes</td>
+                <td>2.032</td>
+                <td>1100</td>
+                <td>2</td>
+                <td>2026-01-17</td>
+                <td><code>[{"time_seconds":0,"temperature_value":"480","temperature_unit":"F","airflow_value":"0.18","airflow_unit":"m/s"},{"time_seconds":30,"temperature_value":"590","temperature_unit":"F","airflow_value":"0.2","airflow_unit":"m/s"}]</code></td>
+                <td>22.0</td>
+                <td>cm/min</td>
+                <td>4.0</td>
+                <td>minutes</td>
+                <td>0.08</td>
+                <td>in</td>
+                <td>1100.0</td>
+                <td>kg/m3</td>
+            </tr>
+
+            <tr>
+                <td>EXP-007</td>
+                <td>Lab Demo G</td>
+                <td>Fabric-C</td>
+                <td>Woven fabric</td>
+                <td>1g</td>
+                <td>26</td>
+                <td>99.0</td>
+                <td>260</td>
+                <td>0.4318</td>
+                <td>1.524</td>
+                <td>150</td>
+                <td>Yes</td>
+                <td>1.8</td>
+                <td>650</td>
+                <td>2</td>
+                <td>2026-01-18</td>
+                <td><code>[{"time_seconds":0,"temperature_value":"200","temperature_unit":"C","airflow_value":"80.0","airflow_unit":"ft/min"},{"time_seconds":30,"temperature_value":"260","temperature_unit":"C","airflow_value":"90.0","airflow_unit":"ft/min"}]</code></td>
+                <td>0.6</td>
+                <td>in/min</td>
+                <td>150.0</td>
+                <td>seconds</td>
+                <td>1.8</td>
+                <td>mm</td>
+                <td>0.65</td>
+                <td>g/cm3</td>
+            </tr>
+
+            <tr>
+                <td>EXP-008</td>
+                <td>Saffire-like Demo H</td>
+                <td>Coating-D</td>
+                <td>Protective coating</td>
+                <td>Microgravity</td>
+                <td>24</td>
+                <td>101.3</td>
+                <td>170</td>
+                <td>0.15</td>
+                <td></td>
+                <td></td>
+                <td>Unknown</td>
+                <td>2.032</td>
+                <td>1100</td>
+                <td>1</td>
+                <td>2026-01-19</td>
+                <td><code>[{"time_seconds":0,"temperature_value":"170","temperature_unit":"C","airflow_value":"0.15","airflow_unit":"m/s"}]</code></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>0.08</td>
+                <td>in</td>
+                <td>1100.0</td>
+                <td>kg/m3</td>
+            </tr>
+
+        </tbody>
+    </table>
+</section>
+
+<!-- COLUMN NOTES -->
+
+<section id="column-notes">
+
+    <h2>Column Notes</h2>
+
+    <ul>
+        <li>max_temperature_C: Maximum temperature in Celsius.</li> <br><br>
+        <li>pressure_kPa: Pressure in kilopascals.</li><br><br>
+        <li>oxygen_percent: Oxygen concentration in percent.</li><br><br>
+        <li>average_airflow_m_per_s: Average airflow in metres per second.</li><br><br>
+        <li>flame_spread_cm_per_min: Flame spread converted to cm/min.</li><br><br>
+        <li>burn_duration_seconds: Burn duration converted to seconds.</li><br><br>
+        <li>thickness_mm: Material thickness in millimetres.</li><br><br>
+        <li>density_kg_per_m3: Material density in kg/m³.</li><br><br>
+        <li>sensor_reading_count: Number of sensor readings recorded.</li><br><br>
+        <li>raw_sensor_readings_json: Original sensor readings.</li>
     </ul>
 
-    <h1>Microgravity Fire Data</h1>
+</section>
 
-    <!-- OXYGEN SLIDER -->
-    <div class="slider-container">
+<!-- UNIT CONVERSIONS -->
 
-        <h2>Explore Oxygen Levels in Graphs</h2>
+<section>
 
-        <label for="oxygenSlider">
-            Minimum Oxygen Concentration:
-            <span id="oxygenValue">16%</span>
-        </label>
+    <h2>Unit Conversions</h2>
 
-        <input
-            type="range"
-            id="oxygenSlider"
-            min="16"
-            max="24"
-            step="1"
-            value="16"
-        >
+    <ul>
+        <li>Fahrenheit to Celsius: (F - 32) × 5/9</li><br><br>
+        <li>Feet/min to m/s: ft/min × 0.00508</li><br><br>
+        <li>Inches/min to cm/min: in/min × 2.54</li><br><br>
+        <li>Minutes to seconds: minutes × 60</li><br><br>
+        <li>Inches to mm: inches × 25.4</li><br><br>
+        <li>g/cm³ to kg/m³: g/cm³ × 1000</li>
+    </ul>
 
-        <div class="slider-info">
-            Data points displayed in graphs:
-            <span id="observationCount">20</span> / 20
-        </div>
+</section>
 
-        <button class="reset-button" id="resetButton">
-            Reset Graphs
-        </button>
 
-        <p class="data-note">
-            The slider filters the plotted observations by their
-            recorded oxygen concentration.
-        </p>
+<!-- CHART JAVASCRIPT -->
 
-    </div>
+<script>
 
-    <!-- SCATTER PLOTS -->
-    <div>
-        <h2>Scatter Plots</h2>
+// -----------------------------
+// DATA
+// -----------------------------
 
-        <div class="charts-container">
+const dimData = [
+    { label: 'A', x: 12, y: 30, o2: 16, flow: 2 },
+    { label: 'B', x: 15, y: 38, o2: 18, flow: 3 },
+    { label: 'C', x: 18, y: 49, o2: 19, flow: 4 },
+    { label: 'G', x: 14, y: 45, o2: 17, flow: 7 },
+    { label: 'I', x: 23, y: 58, o2: 20, flow: 6 },
+    { label: 'K', x: 19, y: 53, o2: 18, flow: 8 },
+    { label: 'M', x: 20, y: 57, o2: 21, flow: 7 },
+    { label: 'P', x: 17, y: 42, o2: 17, flow: 5 },
+    { label: 'R', x: 22, y: 59, o2: 22, flow: 7 },
+    { label: 'S', x: 20, y: 58, o2: 18, flow: 5 }
+];
 
-            <div class="chart-box">
-                <canvas id="chart1"></canvas>
-            </div>
+const brightData = [
+    { label: 'D', x: 24, y: 65, o2: 21, flow: 3 },
+    { label: 'E', x: 27, y: 73, o2: 22, flow: 5 },
+    { label: 'F', x: 31, y: 83, o2: 24, flow: 4 },
+    { label: 'H', x: 28, y: 78, o2: 23, flow: 8 },
+    { label: 'J', x: 21, y: 61, o2: 22, flow: 2 },
+    { label: 'L', x: 28, y: 71, o2: 24, flow: 7 },
+    { label: 'N', x: 22, y: 60, o2: 19, flow: 2 },
+    { label: 'O', x: 25, y: 68, o2: 23, flow: 3 },
+    { label: 'Q', x: 24, y: 63, o2: 20, flow: 8 },
+    { label: 'T', x: 23, y: 62, o2: 21, flow: 4 }
+];
 
-            <div class="chart-box">
-                <canvas id="chart2"></canvas>
-            </div>
+// -----------------------------
+// STORE CHARTS
+// -----------------------------
 
-            <div class="chart-box">
-                <canvas id="chart3"></canvas>
-            </div>
+const charts = [];
 
-            <div class="chart-box">
-                <canvas id="chart4"></canvas>
-            </div>
+// -----------------------------
+// CREATE CHART FUNCTION
+// -----------------------------
 
-            <div class="chart-box">
-                <canvas id="chart5"></canvas>
-            </div>
+function createDarkScatterChart(
+    canvasId,
+    title,
+    xKey,
+    yKey,
+    xLabel,
+    yLabel
+) {
 
-            <div class="chart-box">
-                <canvas id="chart6"></canvas>
-            </div>
+    const chart = new Chart(
+        document.getElementById(canvasId),
+        {
+            type: 'scatter',
 
-        </div>
-    </div>
+            data: {
+                datasets: [
+                    {
+                        label: 'Dim',
+                        data: dimData.map(d => ({
+                            x: d[xKey],
+                            y: d[yKey],
+                            label: d.label
+                        })),
+                        backgroundColor: 'lightblue',
+                        borderColor: '#00b2cc',
+                        pointRadius: 6
+                    },
+                    {
+                        label: 'Bright',
+                        data: brightData.map(d => ({
+                            x: d[xKey],
+                            y: d[yKey],
+                            label: d.label
+                        })),
+                        backgroundColor: 'whitesmoke',
+                        borderColor: 'lightgray',
+                        pointRadius: 6
+                    }
+                ]
+            },
 
-    <script>
+            options: {
+                responsive: true,
 
-        // -----------------------------
-        // DATA
-        // -----------------------------
-
-        const dimData = [
-            { label: 'A', x: 12, y: 30, o2: 16, flow: 2 },
-            { label: 'B', x: 15, y: 38, o2: 18, flow: 3 },
-            { label: 'C', x: 18, y: 49, o2: 19, flow: 4 },
-            { label: 'G', x: 14, y: 45, o2: 17, flow: 7 },
-            { label: 'I', x: 23, y: 58, o2: 20, flow: 6 },
-            { label: 'K', x: 19, y: 53, o2: 18, flow: 8 },
-            { label: 'M', x: 20, y: 57, o2: 21, flow: 7 },
-            { label: 'P', x: 17, y: 42, o2: 17, flow: 5 },
-            { label: 'R', x: 22, y: 59, o2: 22, flow: 7 },
-            { label: 'S', x: 20, y: 58, o2: 18, flow: 5 }
-        ];
-
-        const brightData = [
-            { label: 'D', x: 24, y: 65, o2: 21, flow: 3 },
-            { label: 'E', x: 27, y: 73, o2: 22, flow: 5 },
-            { label: 'F', x: 31, y: 83, o2: 24, flow: 4 },
-            { label: 'H', x: 28, y: 78, o2: 23, flow: 8 },
-            { label: 'J', x: 21, y: 61, o2: 22, flow: 2 },
-            { label: 'L', x: 28, y: 71, o2: 24, flow: 7 },
-            { label: 'N', x: 22, y: 60, o2: 19, flow: 2 },
-            { label: 'O', x: 25, y: 68, o2: 23, flow: 3 },
-            { label: 'Q', x: 24, y: 63, o2: 20, flow: 8 },
-            { label: 'T', x: 23, y: 62, o2: 21, flow: 4 }
-        ];
-
-        // -----------------------------
-        // STORE CHARTS
-        // -----------------------------
-
-        const charts = [];
-
-        // -----------------------------
-        // CREATE CHART FUNCTION
-        // -----------------------------
-
-        function createDarkScatterChart(
-            canvasId,
-            title,
-            xKey,
-            yKey,
-            xLabel,
-            yLabel
-        ) {
-
-            const chart = new Chart(
-                document.getElementById(canvasId),
-                {
-                    type: 'scatter',
-
-                    data: {
-                        datasets: [
-                            {
-                                label: 'Dim',
-                                data: dimData.map(d => ({
-                                    x: d[xKey],
-                                    y: d[yKey],
-                                    label: d.label
-                                })),
-                                backgroundColor: 'lightblue',
-                                borderColor: '#00b2cc',
-                                pointRadius: 6
-                            },
-                            {
-                                label: 'Bright',
-                                data: brightData.map(d => ({
-                                    x: d[xKey],
-                                    y: d[yKey],
-                                    label: d.label
-                                })),
-                                backgroundColor: 'whitesmoke',
-                                borderColor: 'lightgray',
-                                pointRadius: 6
-                            }
-                        ]
+                plugins: {
+                    title: {
+                        display: true,
+                        text: title,
+                        color: 'rgb(235, 235, 235)',
+                        font: { size: 16 }
                     },
 
-                    options: {
-                        responsive: true,
+                    legend: {
+                        labels: {
+                            color: 'whitesmoke'
+                        }
+                    },
 
-                        plugins: {
-                            title: {
-                                display: true,
-                                text: title,
-                                color: 'rgb(235, 235, 235)',
-                                font: { size: 16 }
-                            },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) =>
+                                `Obs ${ctx.raw.label}: (${ctx.raw.x}, ${ctx.raw.y})`
+                        }
+                    }
+                },
 
-                            legend: {
-                                labels: {
-                                    color: 'whitesmoke'
-                                }
-                            },
-
-                            tooltip: {
-                                callbacks: {
-                                    label: (ctx) =>
-                                        `Obs ${ctx.raw.label}: (${ctx.raw.x}, ${ctx.raw.y})`
-                                }
-                            }
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: xLabel,
+                            color: 'whitesmoke'
                         },
+                        ticks: {
+                            color: 'whitesmoke'
+                        },
+                        grid: {
+                            color: '#555555'
+                        }
+                    },
 
-                        scales: {
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: xLabel,
-                                    color: 'whitesmoke'
-                                },
-                                ticks: {
-                                    color: 'whitesmoke'
-                                },
-                                grid: {
-                                    color: '#555555'
-                                }
-                            },
-
-                            y: {
-                                title: {
-                                    display: true,
-                                    text: yLabel,
-                                    color: 'whitesmoke'
-                                },
-                                ticks: {
-                                    color: 'whitesmoke'
-                                },
-                                grid: {
-                                    color: '#555555'
-                                }
-                            }
+                    y: {
+                        title: {
+                            display: true,
+                            text: yLabel,
+                            color: 'whitesmoke'
+                        },
+                        ticks: {
+                            color: 'whitesmoke'
+                        },
+                        grid: {
+                            color: '#555555'
                         }
                     }
                 }
-            );
-
-            // Save chart information for slider updates
-            charts.push({
-                chart: chart,
-                xKey: xKey,
-                yKey: yKey
-            });
-
+            }
         }
+    );
 
-        // -----------------------------
-        // CREATE ALL SIX CHARTS
-        // -----------------------------
+    charts.push({
+        chart: chart,
+        xKey: xKey,
+        yKey: yKey
+    });
 
-        createDarkScatterChart(
-            'chart1',
-            'Diameter vs Brightness',
-            'x', 'y',
-            'Diameter (mm)',
-            'Brightness (au)'
-        );
+}
 
-        createDarkScatterChart(
-            'chart2',
-            'Oxygen vs Brightness',
-            'o2', 'y',
-            'Oxygen (%)',
-            'Brightness (au)'
-        );
+// -----------------------------
+// CREATE ALL SIX CHARTS
+// -----------------------------
 
-        createDarkScatterChart(
-            'chart3',
-            'Airflow vs Diameter',
-            'flow', 'x',
-            'Airflow (cm/s)',
-            'Diameter (mm)'
-        );
+createDarkScatterChart(
+    'chart1',
+    'Diameter vs Brightness',
+    'x', 'y',
+    'Diameter (mm)',
+    'Brightness (au)'
+);
 
-        createDarkScatterChart(
-            'chart4',
-            'Airflow vs Brightness',
-            'flow', 'y',
-            'Airflow (cm/s)',
-            'Brightness (au)'
-        );
+createDarkScatterChart(
+    'chart2',
+    'Oxygen vs Brightness',
+    'o2', 'y',
+    'Oxygen (%)',
+    'Brightness (au)'
+);
 
-        createDarkScatterChart(
-            'chart5',
-            'Oxygen vs Diameter',
-            'o2', 'x',
-            'Oxygen (%)',
-            'Diameter (mm)'
-        );
+createDarkScatterChart(
+    'chart3',
+    'Airflow vs Diameter',
+    'flow', 'x',
+    'Airflow (cm/s)',
+    'Diameter (mm)'
+);
 
-        createDarkScatterChart(
-            'chart6',
-            'Oxygen vs Airflow',
-            'o2', 'flow',
-            'Oxygen (%)',
-            'Airflow (cm/s)'
-        );
+createDarkScatterChart(
+    'chart4',
+    'Airflow vs Brightness',
+    'flow', 'y',
+    'Airflow (cm/s)',
+    'Brightness (au)'
+);
 
-        // -----------------------------
-        // OXYGEN SLIDER
-        // -----------------------------
+createDarkScatterChart(
+    'chart5',
+    'Oxygen vs Diameter',
+    'o2', 'x',
+    'Oxygen (%)',
+    'Diameter (mm)'
+);
 
-        const oxygenSlider =
-            document.getElementById('oxygenSlider');
+createDarkScatterChart(
+    'chart6',
+    'Oxygen vs Airflow',
+    'o2', 'flow',
+    'Oxygen (%)',
+    'Airflow (cm/s)'
+);
 
-        const oxygenValue =
-            document.getElementById('oxygenValue');
+// -----------------------------
+// OXYGEN SLIDER
+// -----------------------------
 
-        const observationCount =
-            document.getElementById('observationCount');
+const oxygenSlider =
+    document.getElementById('oxygenSlider');
 
-        function updateDashboard() {
+const oxygenValue =
+    document.getElementById('oxygenValue');
 
-            const minimumOxygen =
-                Number(oxygenSlider.value);
+const observationCount =
+    document.getElementById('observationCount');
 
-            // Display selected oxygen level
-            oxygenValue.textContent =
-                minimumOxygen + '%';
+function updateDashboard() {
 
-            // Filter data for graphs only
-            const filteredDim =
-                dimData.filter(d => d.o2 >= minimumOxygen);
+    const minimumOxygen =
+        Number(oxygenSlider.value);
 
-            const filteredBright =
-                brightData.filter(d => d.o2 >= minimumOxygen);
+    oxygenValue.textContent =
+        minimumOxygen + '%';
 
-            // Update observation count
-            observationCount.textContent =
-                filteredDim.length + filteredBright.length;
+    const filteredDim =
+        dimData.filter(d => d.o2 >= minimumOxygen);
 
-            // Update all six graphs
-            charts.forEach(item => {
+    const filteredBright =
+        brightData.filter(d => d.o2 >= minimumOxygen);
 
-                const chart = item.chart;
-                const xKey = item.xKey;
-                const yKey = item.yKey;
+    observationCount.textContent =
+        filteredDim.length + filteredBright.length;
 
-                chart.data.datasets[0].data =
-                    filteredDim.map(d => ({
-                        x: d[xKey],
-                        y: d[yKey],
-                        label: d.label
-                    }));
+    charts.forEach(item => {
 
-                chart.data.datasets[1].data =
-                    filteredBright.map(d => ({
-                        x: d[xKey],
-                        y: d[yKey],
-                        label: d.label
-                    }));
+        const chart = item.chart;
+        const xKey = item.xKey;
+        const yKey = item.yKey;
 
-                chart.update();
+        chart.data.datasets[0].data =
+            filteredDim.map(d => ({
+                x: d[xKey],
+                y: d[yKey],
+                label: d.label
+            }));
 
-            });
+        chart.data.datasets[1].data =
+            filteredBright.map(d => ({
+                x: d[xKey],
+                y: d[yKey],
+                label: d.label
+            }));
 
-        }
+        chart.update();
 
-        // Update graphs when slider moves
-        oxygenSlider.addEventListener(
-            'input',
-            updateDashboard
-        );
+    });
 
-        // Reset slider to 16%
-        document.getElementById('resetButton')
-            .addEventListener('click', function() {
+}
 
-                oxygenSlider.value = 16;
-                updateDashboard();
+// Update graphs when slider moves
 
-            });
+oxygenSlider.addEventListener(
+    'input',
+    updateDashboard
+);
 
-        // Initialize dashboard
+// Reset slider
+
+document.getElementById('resetButton')
+    .addEventListener('click', function() {
+
+        oxygenSlider.value = 16;
         updateDashboard();
 
-    </script>
+    });
+
+// Initialize dashboard
+
+updateDashboard();
+
+</script>
 
 </body>
+<footer>
+    <p>WARNING: This is a fake website for educational purposes only.</p>
+</footer>
 </html>
